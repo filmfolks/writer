@@ -126,11 +126,17 @@
         #fullscreen-controls {
             display: none;
         }
+        .fullscreen #fullscreen-controls button {
+            padding: 4px 8px; /* Smaller buttons in full screen */
+            font-size: 14px;
+        }
 
         /* Mobile-specific styles (applied via class or media query) */
         .mobile #toolbar {
-            flex-direction: column;
-            align-items: center;
+            /* Keep horizontal with wrapping */
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            overflow-x: auto;
         }
         .mobile button {
             padding: 12px 16px; /* Larger buttons for touch */
@@ -162,8 +168,9 @@
         /* Responsive media query for small screens (fallback if JS detection fails) */
         @media (max-width: 768px) {
             #toolbar {
-                flex-direction: column;
-                align-items: center;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                overflow-x: auto;
             }
             button {
                 padding: 12px 16px;
