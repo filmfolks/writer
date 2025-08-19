@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Text Writer/Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #toolbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        button:hover {
+            background-color: #777;
+        }
+        #fullscreen-btn {
+            margin-left: auto;
+        }
+        #editor {
+            flex: 1;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: white;
+            border: none;
+            outline: none;
+            resize: none;
+            overflow: auto;
+            transition: font-size 0.3s, background-color 0.3s, color 0.3s;
+            font-family: 'Courier New', monospace; /* Monospace font inspired by iA Writer */
+        }
+        #editor:empty:before {
+            content: attr(placeholder);
+            color: grey;
+        }
+        #preview {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            overflow: auto;
+        }
+        #stats {
+            padding: 5px;
+            background-color: #eee;
+            text-align: right;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        .dark-mode #editor,
+        .dark-mode #preview {
+            background-color: #333;
+            color: #ddd;
+        }
+        .dark-mode #toolbar {
+            background-color: #111;
+        }
+        .dark-mode button {
+            background-color: #444;
+        }
+        .dark-mode button:hover {
+            background-color: #666;
+        }
+        .dark-mode #stats {
+            background-color: #444;
+            color: #ddd;
+        }
+        .focus-mode #editor:not(:focus) {
+            opacity: 0.5;
+        }
+        .fullscreen #toolbar {
+            display: none; /* Hide the entire toolbar bar in full screen */
+        }
+        .fullscreen #fullscreen-controls {
+            display: flex;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        #fullscreen-controls {
+            display: none;
+        }
+        .fullscreen #stats {
+            display: none; /* Optional: hide stats in full screen for minimalism */
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button onclick="handleSave()">S</button>
+        <button onclick="loadText()">L</button>
+        <button onclick="clearText()">C</button>
+        <button onclick="togglePreview()">P</button>
+        <button onclick="toggleDarkMode()">🌙</button>
+        <button onclick="increaseFont()">+</button>
+        <button onclick="decreaseFont()">-</button>
+        <button onclick="searchReplace()">Search/Replace</button>
+        <button onclick="toggleFocusMode()">Focus Mode</button>
+        <button onclick="undo()">Undo</button>
+        <button onclick="redo()">Redo</button>
+        <button onclick="toggleAutoSave()">A</button>
+        <button id="fullscreen-btn" onclick="toggleFullScreen()">[ ]</button>
+    </div>
+    <div id="fullscreen-controls">
+        <button onclick="toggleDarkMode()">🌙</button>
+        <button onclick="toggleFullScreen()">[ ]</button>
+    </div>
+    <div id="editor" contenteditable="true" placeholder="Start writing here..."></div>
+    <div id="preview"></div>
+    <div id="stats">Words: 0 | Characters: 0</div>
+
+    <script>
+        let fontSize = 16;
+        let history = [];
+        let historyIndex = -1;
+        let autoSaveInterval = null;
+        let isAutoSaveOn = false;
+
+        function updateStats() {
+            const text = document.getElementById('editor').innerText;
+            const words = text.split(/\s+/).filter(word => word.length > 0).length;
+            const chars = text.length;
+            document.getElementById('stats').innerText = `Words: ${words} | Characters: ${chars}`;
+        }
+
+        function saveToHistory() {
+            const text = document.getElementById('editor').innerHTML;
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            history.push(text);
+            historyIndex = history.length - 1;
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
+            }
+        }
+
+        function handleSave() {
+            const options = 'Choose format:\n1. txt\n2. pdf\n3. fountain\n4. img';
+            const choice = prompt(options);
+            if (!choice) return;
+            const text = document.getElementById('editor').innerText;
+            let extension;
+            switch (choice) {
+                case '1':
+                case 'txt':
+                    extension = 'txt';
+                    break;
+                case '2':
+                case 'pdf':
+                    extension = 'pdf';
+                    break;
+                case '3':
+                case 'fountain':
+                    extension = 'fountain';
+                    break;
+                case '4':
+                case 'img':
+                    extension = 'png'; // Export as PNG image
+                    break;
+                default:
+                    alert('Invalid choice. Please enter 1, 2, 3, 4, or the format name.');
+                    return;
+            }
+            let filename = `document.${extension}`;
+            if (extension === 'txt' || extension === 'fountain') {
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (extension === 'pdf') {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Print to PDF</title></head><body><pre>' + text + '</pre></body></html>');
+                printWindow.document.close();
+                printWindow.print();
+                // Note: After printing, save as PDF from the print dialog.
+            } else if (extension === 'png') {
+                const editor = document.getElementById('editor');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const lines = text.split('\n');
+                const lineHeight = 20; // Approximate line height
+                canvas.width = 800; // Fixed width for image
+                canvas.height = lines.length * lineHeight + 40; // Height based on lines
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = `${fontSize}px monospace`;
+                ctx.fillStyle = 'black';
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, 20, (index + 1) * lineHeight + 20);
+                });
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+            }
+            // Also save to localStorage as before
+            localStorage.setItem('savedText', text);
+        }
+
+        function loadText() {
+            const savedText = localStorage.getItem('savedText');
+            if (savedText) {
+                document.getElementById('editor').innerText = savedText;
+                saveToHistory();
+                updateStats();
+            } else {
+                alert('No saved text found.');
+            }
+        }
+
+        function clearText() {
+            document.getElementById('editor').innerHTML = '';
+            saveToHistory();
+            updateStats();
+        }
+
+        function togglePreview() {
+            // Shows print/PDF preview
+            const text = document.getElementById('editor').innerText;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>PDF Preview</title><style>body { font-family: monospace; white-space: pre-wrap; }</style></head><body>' + text + '</body></html>');
+            printWindow.document.close();
+            printWindow.print(); // Triggers print dialog to preview/save as PDF
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function increaseFont() {
+            fontSize += 2;
+            document.getElementById('editor').style.fontSize = `${fontSize}px`;
+        }
+
+        function decreaseFont() {
+            if (fontSize > 10) {
+                fontSize -= 2;
+                document.getElementById('editor').style.fontSize = `${fontSize}px`;
+            }
+        }
+
+        function searchReplace() {
+            const search = prompt('Enter text to search:');
+            if (!search) return;
+            const replace = prompt('Enter replacement text:');
+            const editor = document.getElementById('editor');
+            editor.innerHTML = editor.innerHTML.replace(new RegExp(search, 'g'), replace);
+            saveToHistory();
+            updateStats();
+        }
+
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleAutoSave() {
+            isAutoSaveOn = !isAutoSaveOn;
+            if (isAutoSaveOn) {
+                autoSaveInterval = setInterval(() => {
+                    const text = document.getElementById('editor').innerText;
+                    localStorage.setItem('savedText', text);
+                    console.log('Auto-saved to localStorage');
+                }, 120000); // 2 minutes = 120000 ms
+                alert('Auto-save enabled (every 2 minutes)');
+            } else {
+                clearInterval(autoSaveInterval);
+                alert('Auto-save disabled');
+            }
+        }
+
+        // Handle fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            const isFullscreen = !!document.fullscreenElement;
+            document.body.classList.toggle('fullscreen', isFullscreen);
+            document.getElementById('fullscreen-controls').style.display = isFullscreen ? 'flex' : 'none';
+        });
+
+        document.getElementById('editor').addEventListener('input', () => {
+            saveToHistory();
+            updateStats();
+        });
+
+        // Initial save to history
+        saveToHistory();
+        updateStats();
+    </script>
+</body>
+</html>
