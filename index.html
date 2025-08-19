@@ -62,10 +62,24 @@
             background-color: white;
             overflow: auto;
         }
-        #stats {
+        #footer {
             padding: 5px;
             background-color: #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #stats {
             text-align: right;
+        }
+        #formatting-tools button {
+            background-color: #ddd;
+            color: black;
+            padding: 4px 8px;
+            margin: 0 2px;
+        }
+        #formatting-tools button:hover {
+            background-color: #ccc;
         }
         .dark-mode {
             background-color: #222;
@@ -85,9 +99,16 @@
         .dark-mode button:hover {
             background-color: #666;
         }
-        .dark-mode #stats {
+        .dark-mode #footer {
             background-color: #444;
             color: #ddd;
+        }
+        .dark-mode #formatting-tools button {
+            background-color: #555;
+            color: #ddd;
+        }
+        .dark-mode #formatting-tools button:hover {
+            background-color: #666;
         }
         .focus-mode #editor:not(:focus) {
             opacity: 0.5;
@@ -105,34 +126,48 @@
         #fullscreen-controls {
             display: none;
         }
-        .fullscreen #stats {
-            display: none; /* Optional: hide stats in full screen for minimalism */
-        }
+        /* Removed hiding of footer in fullscreen to keep it visible */
     </style>
 </head>
 <body>
     <div id="toolbar">
-        <button onclick="handleSave()">S</button>
-        <button onclick="loadText()">L</button>
-        <button onclick="clearText()">C</button>
-        <button onclick="togglePreview()">P</button>
-        <button onclick="toggleDarkMode()">🌙</button>
-        <button onclick="increaseFont()">+</button>
-        <button onclick="decreaseFont()">-</button>
-        <button onclick="searchReplace()">Search/Replace</button>
-        <button onclick="toggleFocusMode()">Focus Mode</button>
-        <button onclick="undo()">Undo</button>
-        <button onclick="redo()">Redo</button>
-        <button onclick="toggleAutoSave()">A</button>
-        <button id="fullscreen-btn" onclick="toggleFullScreen()">[ ]</button>
+        <button title="Save" onclick="handleSave()">S</button>
+        <button title="Load" onclick="loadText()">L</button>
+        <button title="Clear" onclick="clearText()">C</button>
+        <button title="Preview" onclick="togglePreview()">P</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Search and Replace" onclick="searchReplace()">Search/Replace</button>
+        <button title="Toggle Focus Mode" onclick="toggleFocusMode()">Focus Mode</button>
+        <button title="Undo" onclick="undo()">Undo</button>
+        <button title="Redo" onclick="redo()">Redo</button>
+        <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
+        <button id="fullscreen-btn" title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
     <div id="fullscreen-controls">
-        <button onclick="toggleDarkMode()">🌙</button>
-        <button onclick="toggleFullScreen()">[ ]</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
     <div id="editor" contenteditable="true" placeholder="Start writing here..."></div>
     <div id="preview"></div>
-    <div id="stats">Words: 0 | Characters: 0</div>
+    <div id="footer">
+        <div id="formatting-tools">
+            <button title="Bold" onclick="formatText('bold')">B</button>
+            <button title="Italic" onclick="formatText('italic')">I</button>
+            <button title="Heading 1" onclick="formatText('heading1')">#</button>
+            <button title="Heading 2" onclick="formatText('heading2')">##</button>
+            <button title="Insert Link" onclick="formatText('link')">Link</button>
+            <button title="Insert Image" onclick="formatText('image')">Img</button>
+            <button title="Unordered List" onclick="formatText('list')">-</button>
+            <button title="Numbered List" onclick="formatText('numberedList')">1.</button>
+            <button title="Blockquote" onclick="formatText('quote')">></button>
+            <button title="Code" onclick="formatText('code')">Code</button>
+            <button title="Insert Table" onclick="formatText('table')">Table</button>
+            <button title="Insert Footnote" onclick="formatText('footnote')">Footnote</button>
+        </div>
+        <div id="stats">Words: 0 | Characters: 0</div>
+    </div>
 
     <script>
         let fontSize = 16;
@@ -258,12 +293,63 @@
         }
 
         function togglePreview() {
-            // Shows print/PDF preview
-            const text = document.getElementById('editor').innerText;
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write('<html><head><title>PDF Preview</title><style>body { font-family: monospace; white-space: pre-wrap; }</style></head><body>' + text + '</body></html>');
-            printWindow.document.close();
-            printWindow.print(); // Triggers print dialog to preview/save as PDF
+            const preview = document.getElementById('preview');
+            const editor = document.getElementById('editor');
+            if (preview.style.display === 'none') {
+                preview.innerHTML = multiMarkdownToHtml(editor.innerText);
+                preview.style.display = 'block';
+                editor.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                editor.style.display = 'block';
+            }
+        }
+
+        function multiMarkdownToHtml(text) {
+            // Basic MultiMarkdown parser (supports core features; not exhaustive)
+            // Headings
+            text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+            text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+            text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+            text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+            text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+            text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+            // Bold and Italic
+            text = text.replace(/\*\*(.*)\*\*/gm, '<strong>$1</strong>');
+            text = text.replace(/\*(.*)\*/gm, '<em>$1</em>');
+
+            // Links and Images
+            text = text.replace(/!\[(.*?)\]\((.*?)\)/gm, '<img alt="$1" src="$2" />');
+            text = text.replace(/\[(.*?)\]\((.*?)\)/gm, '<a href="$2">$1</a>');
+
+            // Lists
+            text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>');
+            text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>');
+
+            // Blockquotes
+            text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+
+            // Code Blocks
+            text = text.replace(/``````/gs, '<pre><code>$1</code></pre>');
+            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+
+            // Tables (basic support)
+            text = text.replace(/\|(.*?)\|/g, function(match) {
+                return match.replace(/\|/g, '</td><td>').replace(/^<\/td>/, '<tr><td>');
+            });
+            text = text.replace(/<tr><td>(.*?)<\/td><\/tr>/g, '<table><tbody>$&</tbody></table>');
+
+            // Footnotes (basic: [^[note]] becomes <sup>note</sup>)
+            text = text.replace(/\[\^(.+?)\]/g, '<sup id="fn-$1"><a href="#fnref-$1">$1</a></sup>');
+
+            // Horizontal Rule
+            text = text.replace(/^[-*]{3,}/gm, '<hr>');
+
+            // Line breaks
+            text = text.replace(/\n$/gm, '<br />');
+
+            return text;
         }
 
         function toggleDarkMode() {
@@ -318,6 +404,64 @@
             } else {
                 clearInterval(autoSaveInterval);
                 alert('Auto-save disabled');
+            }
+        }
+
+        // Formatting functions
+        function formatText(type) {
+            const editor = document.getElementById('editor');
+            const selection = window.getSelection();
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+                let formattedText = selectedText;
+
+                switch (type) {
+                    case 'bold':
+                        formattedText = `**${selectedText}**`;
+                        break;
+                    case 'italic':
+                        formattedText = `*${selectedText}*`;
+                        break;
+                    case 'heading1':
+                        formattedText = `# ${selectedText}`;
+                        break;
+                    case 'heading2':
+                        formattedText = `## ${selectedText}`;
+                        break;
+                    case 'link':
+                        const url = prompt('Enter URL:') || 'https://example.com';
+                        formattedText = `[${selectedText}](${url})`;
+                        break;
+                    case 'image':
+                        const imgUrl = prompt('Enter image URL:') || 'https://example.com/image.jpg';
+                        formattedText = `![${selectedText}](${imgUrl})`;
+                        break;
+                    case 'list':
+                        formattedText = `- ${selectedText}`;
+                        break;
+                    case 'numberedList':
+                        formattedText = `1. ${selectedText}`;
+                        break;
+                    case 'quote':
+                        formattedText = `> ${selectedText}`;
+                        break;
+                    case 'code':
+                        formattedText = `\`${selectedText}\``;
+                        break;
+                    case 'table':
+                        formattedText = '| Header1 | Header2 |\n|---------|---------|\n| Cell1   | Cell2   |';
+                        break;
+                    case 'footnote':
+                        const note = prompt('Enter footnote text:') || 'note';
+                        formattedText = `${selectedText}[^${note}]`;
+                        break;
+                }
+
+                range.deleteContents();
+                range.insertNode(document.createTextNode(formattedText));
+                saveToHistory();
+                updateStats();
             }
         }
 
