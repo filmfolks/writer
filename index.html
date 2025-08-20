@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Text Writer/Editor with AI Suggestions</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -31,12 +33,20 @@
             padding: 8px 12px;
             cursor: pointer;
             margin: 2px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500; /* Medium weight for a modern feel */
+            border-radius: 4px; /* Rounded corners for sleekness */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
         }
         button:hover {
             background-color: #777;
         }
-        #fullscreen-btn {
+        #darkmode-btn {
             margin-left: auto;
+        }
+        #fullscreen-btn {
+            margin-left: 2px;
         }
         #editor {
             flex: 1;
@@ -49,7 +59,7 @@
             resize: none;
             overflow: auto;
             transition: font-size 0.3s, background-color 0.3s, color 0.3s;
-            font-family: 'Courier New', monospace; /* Monospace font inspired by iA Writer */
+            font-family: 'Courier New', monospace;
         }
         #editor:empty:before {
             content: attr(placeholder);
@@ -72,7 +82,7 @@
         }
         #stats {
             text-align: center;
-            flex: 1; /* Center by taking space */
+            flex: 1;
         }
         #formatting-tools button {
             background-color: #ddd;
@@ -97,9 +107,11 @@
         }
         .dark-mode button {
             background-color: #444;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Adjusted shadow for dark mode */
         }
         .dark-mode button:hover {
             background-color: #666;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
         }
         .dark-mode #footer {
             background-color: #444;
@@ -116,26 +128,47 @@
             opacity: 0.5;
         }
         .fullscreen #toolbar {
-            display: none; /* Hide the entire toolbar bar in full screen */
+            display: none;
         }
         .fullscreen #fullscreen-controls {
-            display: none; /* Hide top-right controls in full screen */
+            display: none;
         }
         #fullscreen-controls {
             display: none;
         }
 
-        /* Mobile-specific styles (applied via class or media query) */
+        /* Mobile-specific styles for slider toolbar */
         .mobile #toolbar {
-            /* Keep horizontal with wrapping */
-            flex-wrap: wrap;
+            position: fixed;
+            top: 0;
+            left: -100%; /* Hidden off-screen */
+            width: 250px;
+            height: 100vh;
+            flex-direction: column;
             justify-content: flex-start;
-            overflow-x: auto;
+            padding: 20px;
+            transition: left 0.3s ease-in-out;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        .mobile #toolbar.open {
+            left: 0; /* Slide in from left */
         }
         .mobile button {
-            padding: 12px 16px; /* Larger buttons for touch */
+            padding: 12px 16px;
             font-size: 18px;
-            margin: 5px;
+            margin: 10px 0; /* Stack vertically */
+            width: 100%; /* Full width for easy tap */
+        }
+        .mobile #hamburger-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 3000;
+            display: block; /* Show hamburger in mobile */
+        }
+        #hamburger-btn {
+            display: none; /* Hidden in desktop */
         }
         .mobile #footer {
             flex-direction: column;
@@ -152,14 +185,14 @@
             margin: 5px;
         }
         .mobile #editor {
-            font-size: 18px; /* Larger text for mobile readability */
+            font-size: 18px;
             padding: 15px;
         }
         .mobile #stats {
             margin-top: 10px;
         }
 
-        /* Responsive media query for small screens (fallback if JS detection fails) */
+        /* Responsive media query */
         @media (max-width: 768px) {
             #toolbar {
                 flex-wrap: wrap;
@@ -216,6 +249,12 @@
         #suggestion button {
             margin-top: 5px;
             display: block;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 6px 12px; /* Slightly adjusted for sidebar fit */
         }
         .option {
             margin-bottom: 20px;
@@ -251,11 +290,11 @@
     </style>
 </head>
 <body>
+    <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button> <!-- Hamburger for mobile slider -->
     <div id="toolbar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Clear" onclick="clearText()">C</button>
         <button title="Preview" onclick="togglePreview()">P</button>
-        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Increase Font Size" onclick="increaseFont()">+</button>
         <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
         <button title="Search and Replace" onclick="searchReplace()">Search/Replace</button>
@@ -266,6 +305,8 @@
         <button title="Gemini API Instructions" onclick="showApiInstructions()">i</button>
         <button title="Set Gemini API Key" onclick="setApiKey()">API Key</button>
         <button title="Get AI Suggestion" onclick="getAiSuggestion()">AI Suggest</button>
+        <button title="Proofread" onclick="getAiProofread()">Proofread</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button id="fullscreen-btn" title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
     <div id="fullscreen-controls">
@@ -274,7 +315,7 @@
     </div>
     <div id="editor" contenteditable="true" placeholder="Start writing here..."></div>
     <div id="preview"></div>
-    <div id="suggestion"></div> <!-- Sidebar for AI suggestions -->
+    <div id="suggestion"></div> <!-- Sidebar for AI suggestions and proofreading -->
     <div id="footer">
         <div id="formatting-tools">
             <button title="Bold" onclick="formatText('bold')">B</button>
@@ -294,6 +335,7 @@
         <div id="fullscreen-footer-controls">
             <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
             <button title="Get AI Suggestion" onclick="getAiSuggestion()">AI Suggest</button>
+            <button title="Proofread" onclick="getAiProofread()">Proofread</button>
             <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
         </div>
     </div>
@@ -308,6 +350,12 @@
         // Apply mobile class if detected
         if (isMobile()) {
             document.body.classList.add('mobile');
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const toolbar = document.getElementById('toolbar');
+            toolbar.classList.toggle('open');
         }
 
         let fontSize = 16;
@@ -350,30 +398,26 @@
         }
 
         function handleSave() {
-            const options = 'Choose format:\n1. txt\n2. pdf\n3. fountain\n4. img';
+            const options = 'Type the number to choose the format you want to save:\n1. txt\n2. pdf\n3. fountain\n4. img';
             const choice = prompt(options);
             if (!choice) return;
             const text = document.getElementById('editor').innerText;
             let extension;
             switch (choice) {
                 case '1':
-                case 'txt':
                     extension = 'txt';
                     break;
                 case '2':
-                case 'pdf':
                     extension = 'pdf';
                     break;
                 case '3':
-                case 'fountain':
                     extension = 'fountain';
                     break;
                 case '4':
-                case 'img':
-                    extension = 'png'; // Export as PNG image
+                    extension = 'png';
                     break;
                 default:
-                    alert('Invalid choice. Please enter 1, 2, 3, 4, or the format name.');
+                    alert('Invalid choice. Please type a number from 1 to 4.');
                     return;
             }
             let filename = `document.${extension}`;
@@ -387,21 +431,20 @@
                 URL.revokeObjectURL(url);
             } else if (extension === 'pdf') {
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write('<html><head><title>Print to PDF</title></head><body><pre>' + text + '</pre></body></html>');
+                printWindow.document.write('<html><head><title>Print to PDF</title><style>body { font-family: "Courier New", monospace; font-size: 12pt; }</style></head><body><pre>' + text + '</pre></body></html>');
                 printWindow.document.close();
                 printWindow.print();
                 // Note: After printing, save as PDF from the print dialog.
             } else if (extension === 'png') {
-                const editor = document.getElementById('editor');
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const lines = text.split('\n');
-                const lineHeight = 20; // Approximate line height
-                canvas.width = 800; // Fixed width for image
-                canvas.height = lines.length * lineHeight + 40; // Height based on lines
+                const lineHeight = 20;
+                canvas.width = 800;
+                canvas.height = lines.length * lineHeight + 40;
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.font = `${fontSize}px monospace`;
+                ctx.font = '12pt Courier New';
                 ctx.fillStyle = 'black';
                 lines.forEach((line, index) => {
                     ctx.fillText(line, 20, (index + 1) * lineHeight + 20);
@@ -409,11 +452,77 @@
                 const url = canvas.toDataURL('image/png');
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = filename;
+                a.download = 'document.png';
                 a.click();
             }
             // Also save to localStorage as before
             localStorage.setItem('savedText', text);
+        }
+
+        function clearText() {
+            document.getElementById('editor').innerHTML = '';
+            saveToHistory();
+            updateStats();
+        }
+
+        function togglePreview() {
+            const preview = document.getElementById('preview');
+            const editor = document.getElementById('editor');
+            if (preview.style.display === 'none') {
+                preview.innerHTML = multiMarkdownToHtml(editor.innerText);
+                preview.style.display = 'block';
+                editor.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                editor.style.display = 'block';
+            }
+        }
+
+        function multiMarkdownToHtml(text) {
+            // Basic MultiMarkdown parser (supports core features; not exhaustive)
+            // Headings
+            text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+            text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+            text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+            text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+            text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+            text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+            // Bold and Italic
+            text = text.replace(/\*\*(.*)\*\*/gm, '<strong>$1</strong>');
+            text = text.replace(/\*(.*)\*/gm, '<em>$1</em>');
+
+            // Links and Images
+            text = text.replace(/!\[(.*?)\]\((.*?)\)/gm, '<img alt="$1" src="$2" />');
+            text = text.replace(/\[(.*?)\]\((.*?)\)/gm, '<a href="$2">$1</a>');
+
+            // Lists
+            text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>');
+            text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>');
+
+            // Blockquotes
+            text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+
+            // Code Blocks
+            text = text.replace(/``````/gs, '<pre><code>$1</code></pre>');
+            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+
+            // Tables (basic support)
+            text = text.replace(/\|(.*?)\|/g, function(match) {
+                return match.replace(/\|/g, '</td><td>').replace(/^<\/td>/, '<tr><td>');
+            });
+            text = text.replace(/<tr><td>(.*?)<\/td><\/tr>/g, '<table><tbody>$&</tbody></table>');
+
+            // Footnotes (basic: [^[note]] becomes <sup>note</sup>)
+            text = text.replace(/\[\^(.+?)\]/g, '<sup id="fn-$1"><a href="#fnref-$1">$1</a></sup>');
+
+            // Horizontal Rule
+            text = text.replace(/^[-*]{3,}/gm, '<hr>');
+
+            // Line breaks
+            text = text.replace(/\n$/gm, '<br />');
+
+            return text;
         }
 
         function toggleDarkMode() {
@@ -547,9 +656,63 @@
             }
         }
 
+        async function getAiProofread() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                alert('Please set your Gemini API Key first.');
+                return;
+            }
+
+            const editor = document.getElementById('editor');
+            const text = editor.innerText.trim();
+            if (!text) {
+                alert('Please enter some text to proofread.');
+                return;
+            }
+
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Proofreading...';
+            suggestionDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Proofread and correct grammar, spelling, and punctuation in this text. Return only the corrected version: "${text}"`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                const correctedText = data.candidates[0].content.parts[0].text.trim();
+
+                suggestionDiv.innerHTML = `<strong>Proofread Version:</strong><br><pre style="white-space: pre-wrap;">${correctedText}</pre><br><button onclick="insertProofread('${correctedText.replace(/'/g, "\\'")}')">Insert</button> <button onclick="document.getElementById('suggestion').style.display='none'">Close</button>`;
+            } catch (error) {
+                suggestionDiv.innerHTML = 'Error proofreading. Check your API key or try again.';
+            }
+        }
+
         function insertSuggestion(suggestion) {
             const editor = document.getElementById('editor');
             editor.innerText += ' ' + suggestion;
+            document.getElementById('suggestion').style.display = 'none';
+            saveToHistory();
+            updateStats();
+        }
+
+        function insertProofread(correctedText) {
+            const editor = document.getElementById('editor');
+            editor.innerText = correctedText;
             document.getElementById('suggestion').style.display = 'none';
             saveToHistory();
             updateStats();
@@ -617,7 +780,6 @@
         document.addEventListener('fullscreenchange', () => {
             const isFullscreen = !!document.fullscreenElement;
             document.body.classList.toggle('fullscreen', isFullscreen);
-            document.getElementById('fullscreen-controls').style.display = 'none'; // Always hide top controls in full screen
             document.getElementById('fullscreen-footer-controls').style.display = isFullscreen ? 'flex' : 'none';
         });
 
@@ -648,6 +810,14 @@
         // Initial save to history
         saveToHistory();
         updateStats();
+
+        // Add event listeners for formatting tools
+        const formattingButtons = document.querySelectorAll('#formatting-tools button');
+        formattingButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                formatText(button.getAttribute('title').toLowerCase().replace(' ', ''));
+            });
+        });
     </script>
 </body>
 </html>
