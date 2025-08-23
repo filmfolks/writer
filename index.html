@@ -291,12 +291,6 @@
                 display: none !important;
             }
 
-           /* Add AI label to hamburger button */ 
-            #mobile-slider-container button::before {
-                content: "AI";
-                font-size: 15px;
-            }
-
             /* Shift + - to bottom bar and order as C + - then others */
             #mobile-bottom-bar {
                 display: flex;
@@ -397,20 +391,20 @@ flex: 0 0 auto; / no stretching, no wrapping */
     </div>
 
     <div id="mobile-top-bar">
+         <div id="mobile-slider-container">
+            <button onclick="toggleMobileSliderMenu()">AI☰</button>
+            <div id="mobile-slider-menu">
+                <button onclick="showApiInstructions()"> AI Instructions</button>
+                <button onclick="setApiKey()"> API Key</button>
+                <button onclick="getAiSuggestion()"> AI Suggest</button>
+                <button onclick="getAiProofread()"> AI Proofread</button>
+            </div>
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
         <button title="Undo" onclick="undo()">↩️</button>
         <button title="Redo" onclick="redo()">↪️</button>
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
-        <div id="mobile-slider-container">
-            <button onclick="toggleMobileSliderMenu()">☰</button>
-            <div id="mobile-slider-menu">
-                <button onclick="showApiInstructions()"> Instructions</button>
-                <button onclick="setApiKey()"> API Key</button>
-                <button onclick="getAiSuggestion()"> Suggest</button>
-                <button onclick="getAiProofread()"> Proofread</button>
-            </div>
         </div>
     </div>
     <div id="mobile-bottom-bar">
