@@ -286,7 +286,7 @@
             }
 
             /* Mobile specific changes - only these in top bar */
-            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Toggle Dark Mode"], [title="Toggle Full Screen"], #mobile-slider-container button) {
+            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], [title="Toggle Dark Mode"], [title="Toggle Full Screen"], #mobile-slider-container button) {
                 display: none !important;
             }
 
@@ -296,10 +296,9 @@
                 font-size: 15px;
             }
 
-            /* Shift + - undo redo to bottom bar and order as C + - undo redo then others */
+            /* Shift + - to bottom bar and order as C + - then others */
             #mobile-bottom-bar {
                 display: flex;
-                flex-wrap: wrap;
                 justify-content: space-around;
             }
         }
@@ -330,6 +329,8 @@
     <div id="mobile-top-bar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
+        <button title="Undo" onclick="undo()">↩️</button>
+        <button title="Redo" onclick="redo()">↪️</button>
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         <div id="mobile-slider-container">
@@ -346,8 +347,6 @@
         <button title="Clear" onclick="clearText()">C</button>
         <button title="Increase Font Size" onclick="increaseFont()">+</button>
         <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
-        <button title="Undo" onclick="undo()">↩️</button>
-        <button title="Redo" onclick="redo()">↪️</button>
         <button title="Bold" onclick="formatText('bold')">B</button>
         <button title="Italic" onclick="formatText('italic')">I</button>
         <button title="Heading 1" onclick="formatText('heading1')">#</button>
