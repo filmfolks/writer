@@ -195,7 +195,7 @@
             #mobile-top-bar, #mobile-bottom-bar {
                 display: flex;
                 align-items: center;
-                justify-content: flex-start; /* FIX: Align buttons to the left */
+                justify-content: space-around;
                 position: fixed;
                 left: 0;
                 width: 100%;
@@ -205,18 +205,7 @@
                 z-index: 100;
                 padding: 0 5px;
                 box-sizing: border-box;
-                overflow-x: auto; /* FIX: Allow horizontal scrolling */
             }
-            
-            /* Cosmetic fix to hide the scrollbar track but keep scrolling ability */
-            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
-                display: none; /* For Chrome, Safari, and Opera */
-            }
-            #mobile-top-bar, #mobile-bottom-bar {
-                -ms-overflow-style: none;  /* For IE and Edge */
-                scrollbar-width: none;  /* For Firefox */
-            }
-
             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
                 background-color: #252525;
                 border-color: #444;
@@ -230,6 +219,8 @@
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
+                flex-wrap: wrap; /* Allow wrapping if too many buttons */
+                overflow-x: auto;
             }
 
             #mobile-top-bar button, #mobile-bottom-bar button {
@@ -240,14 +231,14 @@
                 font-weight: bold;
                 cursor: pointer;
                 padding: 5px 8px;
-                flex-shrink: 0;
+                flex-shrink: 0; /* Prevent buttons from shrinking */
             }
              .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
                 color: #ddd;
             }
 
             #editor {
-                height: calc(100vh - 90px) !important;
+                height: calc(100vh - 90px) !important; /* Full height minus top and bottom bars */
                 margin-top: 45px;
                 padding: 15px !important;
             }
@@ -299,7 +290,6 @@
     </style>
 </head>
 <body>
-    <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
     <div id="toolbar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Clear" onclick="clearText()">C</button>
@@ -324,14 +314,15 @@
         <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
         <button title="Clear" onclick="clearText()">C</button>
         <button title="Toggle Focus Mode" onclick="toggleFocusMode()">F</button>
-        <button title="Undo" onclick="undo()">↶</button>
-        <button title="Redo" onclick="redo()">↷</button>
+        <button title="Undo" onclick="undo()">↩️</button>
+        <button title="Redo" onclick="redo()">↪️</button>
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
         <div id="mobile-slider-container">
             <button onclick="toggleMobileSliderMenu()">☰</button>
             <div id="mobile-slider-menu">
+                <button onclick="showApiInstructions()">API Instructions</button>
                 <button onclick="setApiKey()">API Key</button>
                 <button onclick="getAiSuggestion()">AI Suggest</button>
                 <button onclick="getAiProofread()">Proofread</button>
@@ -713,7 +704,7 @@
 
              const range = selection.getRangeAt(0);
              const selectedText = range.toString();
-             let formattedText; // Changed to let
+             let replacementNode;
 
              switch (type) {
                  case 'bold': formattedText = `**${selectedText}**`; break;
