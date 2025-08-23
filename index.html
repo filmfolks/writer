@@ -285,26 +285,22 @@
                 margin-top: 0;
             }
 
-            /* Focus Mode Exit Button */
-            #exit-focus-btn {
-                display: none;
+            /* Mobile specific changes - only these in top bar */
+            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Toggle Dark Mode"], [title="Toggle Full Screen"], #mobile-slider-container button) {
+                display: none !important;
             }
-            .focus-mode #exit-focus-btn {
-                display: block;
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                z-index: 2000;
-                background: rgba(0,0,0,0.5);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-                cursor: pointer;
-                text-align: center;
-                line-height: 40px;
+
+            /* Add AI label to hamburger button */
+            #mobile-slider-container button::before {
+                content: "AI ";
+                font-size: 14px;
+            }
+
+            /* Shift + - undo redo to bottom bar and order as C + - undo redo then others */
+            #mobile-bottom-bar {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
             }
         }
         /* --- END OF MOBILE-SPECIFIC STYLES --- */
@@ -332,13 +328,7 @@
     </div>
 
     <div id="mobile-top-bar">
-        <button title="Save" onclick="handleSave()">S</button>  <!-- Added Save button -->
-        <button title="Increase Font Size" onclick="increaseFont()">+</button>
-        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
-        <button title="Clear" onclick="clearText()">C</button>
-        <button title="Toggle Focus Mode" onclick="toggleFocusMode()">F</button>
-        <button title="Undo" onclick="undo()">↩️</button>
-        <button title="Redo" onclick="redo()">↪️</button>
+        <button title="Save" onclick="handleSave()">S</button>
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
@@ -353,6 +343,11 @@
         </div>
     </div>
     <div id="mobile-bottom-bar">
+        <button title="Clear" onclick="clearText()">C</button>
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Undo" onclick="undo()">↩️</button>
+        <button title="Redo" onclick="redo()">↪️</button>
         <button title="Bold" onclick="formatText('bold')">B</button>
         <button title="Italic" onclick="formatText('italic')">I</button>
         <button title="Heading 1" onclick="formatText('heading1')">#</button>
