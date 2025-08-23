@@ -225,11 +225,13 @@
                 font-size: 18px;
                 font-weight: bold;
                 cursor: pointer;
-                padding: 5px 8px;
+                padding: 5px 6px;
                 flex-shrink: 0;
                 min-width: 1px;
                 max-width: 40px;
                 display: inline-block;
+                margin: 0 1px; /* Added tiny margin between buttons */
+                flex-shrink: 0;
             }
              .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
                 background-color: #252525;
@@ -388,15 +390,15 @@
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
         <button title="Undo" onclick="undo()">↶</button>
         <button title="Redo" onclick="redo()">↷</button>
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         </div>
     </div>
     <div id="mobile-bottom-bar">
         <button title="Clear" onclick="clearText()">C</button>
-        <button title="Increase Font Size" onclick="increaseFont()">+</button>
-        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
          <button title="Bold" onclick="formatText('bold')">B</button>
-        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
-        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         <button title="Italic" onclick="formatText('italic')">I</button>
         <button title="Heading 1" onclick="formatText('heading1')">#</button>
         <button title="Heading 2" onclick="formatText('heading2')">##</button>
