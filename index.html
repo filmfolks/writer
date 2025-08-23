@@ -217,6 +217,7 @@
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
             }
+            
             #mobile-top-bar button, #mobile-bottom-bar button {
                 background: none;
                 border: none;
@@ -248,6 +249,7 @@
             #mobile-slider-container {
                 position: relative;
             }
+            
             #mobile-slider-menu {
                 display: none;
                 position: fixed; /* Changed to fixed to overlay everything */
@@ -255,24 +257,76 @@
                 right: 5px; /* Align to right edge with some margin */
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border: 1px solid var(--mobile-border-color, #ccc);
-                border-radius: 4px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                border-radius: 8px; /* Slightly more rounded menu */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                 z-index: 1001; /* Increased z-index to be above editor */
-                width: 120px;
+                width: 120px; /* Wider for better text fit */
                 line-height: 1.5;
+                padding: 5px 0; /* Add some vertical padding */
             }
             .dark-mode #mobile-slider-menu {
                  background-color: #333;
                  border-color: #555;
             }
-
+            
+            /*
+            =====================================================================
+            THIS IS THE ONLY CHANGE: Styling for buttons inside the menu
+            =====================================================================
+            */
             #mobile-slider-menu button {
                 display: block;
                 width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+                font-size: 15px;
+                font-weight: 500;
+                padding: 10px 15px;
+                
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 15;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
+            }
+            /* Add a nice hover/tap effect */
+            #mobile-slider-menu button:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+             .dark-mode #mobile-slider-menu button:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            /* This is the corrected rule for the menu buttons */
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
                 text-align: left;
                 font-size: 14px;
+                font-weight: 500;
                 padding: 10px 15px;
+                
+                /* Removes the incorrect width limit from other rules */
+                max-width: none; 
+
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
             }
+            
+            /*
+            =====================================================================
+            END OF CHANGE
+            =====================================================================
+            */
+
             #mobile-slider-menu.show {
                 display: block;
             }
@@ -297,75 +351,6 @@
                 justify-content: space-around;
             }
         }
-        /* Tighter spacing for top bar buttons in mobile /
-#mobile-top-bar {
-gap: 0; / if you’re using flex gap */
-}
-
-#mobile-top-bar button {
-margin: 0 2px; /* reduce space between buttons /
-padding: 3px 6px; / reduce inner padding /
-font-size: 16px; / optional, slightly smaller /
-min-width: auto; / allow narrower width /
-max-width: none; / remove width cap */
-}
-
-/* Optional: slightly reduce spacing around hamburger wrapper */
-#mobile-slider-container {
-margin-left: 1px;
-}
-
-/* Optional: even tighter for icon buttons */
-#mobile-top-bar button[title="Undo"],
-#mobile-top-bar button[title="Redo"],
-#mobile-top-bar button[title="Toggle Dark Mode"],
-#mobile-top-bar button[title="Toggle Full Screen"] {
-margin: 0 1px;
-padding: 0px 0px;
-}
-
-/* Compact buttons in mobile top bar /
-#mobile-top-bar button {
-/ shrink inner space around the label */
-padding: 2px 4px !important;
-
-/* shrink outer space between buttons */
-margin: 0 0px !important;
-
-/* allow buttons to be as narrow as their content */
-min-width: auto !important;
-max-width: none !important;
-
-/* keep text legible but compact */
-font-size: 15px;
-line-height: 1.1;
-}
-
-/* Optional: make icon-only buttons even tighter */
-#mobile-top-bar button[title="Save"],
-#mobile-top-bar button[title="Toggle Auto Save"],
-#mobile-top-bar button[title="Undo"],
-#mobile-top-bar button[title="Redo"],
-#mobile-top-bar button[title="Toggle Dark Mode"],
-#mobile-top-bar button[title="Toggle Full Screen"] {
-padding: 2px 3px !important;
-margin: 0 1.5px !important;
-}
-
-/* Ensure hamburger wrapper doesn’t add extra spacing */
-#mobile-slider-container {
-margin-left: 2px;
-}
-#mobile-slider-container > button {
-padding: 2px 4px !important;
-margin: 0 2px !important;
-}
-
-/* If earlier CSS enforced fixed widths, clear them /
-#mobile-top-bar button {
-width: auto !important;
-flex: 0 0 auto; / no stretching, no wrapping */
-}
         /* --- END OF MOBILE-SPECIFIC STYLES --- */
 
     </style>
@@ -419,6 +404,7 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Insert Image" onclick="formatText('image')">Img</button>
         <button title="Numbered List" onclick="formatText('numberedList')">🔢</button>
         <button title="Blockquote" onclick="formatText('quote')">></button>
+        <button title="Code" onclick="formatText('code')">Code</button>
         <button title="Insert Table" onclick="formatText('table')">▦</button>
         <button title="Insert Footnote" onclick="formatText('footnote')">📎</button>
     </div>
@@ -438,11 +424,13 @@ flex: 0 0 auto; / no stretching, no wrapping */
             <button title="Heading 2" onclick="formatText('heading2')">##</button>
             <button title="Insert Link" onclick="formatText('link')">Link</button>
             <button title="Insert Image" onclick="formatText('image')">Img</button>
+            <button title="Unordered List" onclick="formatText('list')">-</button>
             <button title="Numbered List" onclick="formatText('numberedList')">1.</button>
             <button title="Blockquote" onclick="formatText('quote')">></button>
+            <button title="Code" onclick="formatText('code')">Code</button>
             <button title="Insert Table" onclick="formatText('table')">Table</button>
             <button title="Insert Footnote" onclick="formatText('footnote')">Footnote</button>
-            </div>
+        </div>
         <div id="stats">Words: 0 | Characters: 0</div>
         <div id="fullscreen-footer-controls">
             <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
@@ -601,6 +589,7 @@ flex: 0 0 auto; / no stretching, no wrapping */
              text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
              text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
              text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+             text = text.replace(/`(.*?)`/g, '<code>$1</code>');
              text = text.replace(/^[-*]{3,}/gm, '<hr>');
              text = text.replace(/\n/g, '<br />');
              return text;
@@ -774,80 +763,37 @@ flex: 0 0 auto; / no stretching, no wrapping */
             updateStats();
         }
 
-        // START: ONLY CHANGE IS TO THIS FUNCTION
         function formatText(type) {
-            // This function now uses document.execCommand for rich text editing.
-            let command = '';
-            let value = null;
+             const editor = document.getElementById('editor');
+             const selection = window.getSelection();
+             if (!selection.rangeCount) return;
 
-            switch (type) {
-                case 'bold':
-                    command = 'bold';
-                    break;
-                case 'italic':
-                    command = 'italic';
-                    break;
-                case 'heading1':
-                    command = 'formatBlock';
-                    value = 'H1';
-                    break;
-                case 'heading2':
-                    command = 'formatBlock';
-                    value = 'H2';
-                    break;
-                case 'numberedList':
-                    command = 'insertOrderedList';
-                    break;
-                case 'quote':
-                    command = 'formatBlock';
-                    value = 'BLOCKQUOTE';
-                    break;
-                case 'table':
-                    const tableHTML = '<table border="1" width="100%"><tbody><tr><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><p><br></p>';
-                    document.execCommand('insertHTML', false, tableHTML);
-                    saveToHistory();
-                    updateStats();
-                    return; // Exit after inserting table
-                
-                // Original logic for commands that require prompts is kept
-                case 'link':
-                    const url = prompt('Enter URL:') || '#';
-                    if (url) {
-                        document.execCommand('createLink', false, url);
-                    }
-                    saveToHistory();
-                    updateStats();
-                    return;
-                case 'image':
-                    const imgUrl = prompt('Enter image URL:');
-                    if (imgUrl) {
-                        document.execCommand('insertImage', false, imgUrl);
-                    }
-                    saveToHistory();
-                    updateStats();
-                    return;
-                case 'footnote':
-                    const note = prompt('Enter footnote ID:');
-                    const selection = window.getSelection();
-                    if (selection.rangeCount > 0) {
-                        const range = selection.getRangeAt(0);
-                        const sup = document.createElement('sup');
-                        sup.textContent = `[${note}]`;
-                        range.insertNode(sup);
-                    }
-                    saveToHistory();
-                    updateStats();
-                    return;
-            }
+             const range = selection.getRangeAt(0);
+             const selectedText = range.toString();
+             let formattedText; 
 
-            if (command) {
-                document.execCommand(command, false, value);
-            }
-            
-            saveToHistory();
-            updateStats();
+             switch (type) {
+                 case 'bold': formattedText = `**${selectedText}**`; break;
+                 case 'italic': formattedText = `*${selectedText}*`; break;
+                 case 'heading1': formattedText = `# ${selectedText}`; break;
+                 case 'heading2': formattedText = `## ${selectedText}`; break;
+                 case 'link': const url = prompt('Enter URL:') || '#'; formattedText = `[${selectedText}](${url})`; break;
+                 case 'image': const imgUrl = prompt('Enter image URL:'); formattedText = `![${selectedText}](${imgUrl})`; break;
+                 case 'list': formattedText = `- ${selectedText}`; break;
+                 case 'numberedList': formattedText = `1. ${selectedText}`; break;
+                 case 'quote': formattedText = `> ${selectedText}`; break;
+                 case 'code': formattedText = `\`${selectedText}\``; break;
+                 case 'table': formattedText = '| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |'; break;
+                 case 'footnote': const note = prompt('Enter footnote ID:'); formattedText = `${selectedText}[^${note}]`; break;
+                 default: formattedText = selectedText;
+             }
+
+             range.deleteContents();
+             range.insertNode(document.createTextNode(formattedText));
+             
+             saveToHistory();
+             updateStats();
         }
-        // END: ONLY CHANGE IS TO THIS FUNCTION
 
 
         document.addEventListener('fullscreenchange', () => {
