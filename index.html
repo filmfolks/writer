@@ -193,7 +193,7 @@
 
             /* Show and style new mobile bars */
             #mobile-top-bar, #mobile-bottom-bar {
-                display: block; /* THIS WAS THE MISSING LINE THAT CAUSED THE BARS TO BE INVISIBLE */
+                display: block; /* Make the bars visible */
                 position: fixed;
                 left: 0;
                 width: 100%;
@@ -208,13 +208,6 @@
                 line-height: 45px;
             }
             
-            #mobile-top-bar button, 
-            #mobile-bottom-bar button, 
-            #mobile-slider-container {
-                display: inline-block;
-                vertical-align: middle;
-            }
-
             #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
                 display: none;
             }
@@ -236,6 +229,15 @@
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
+            }
+
+            #mobile-top-bar button, 
+            #mobile-bottom-bar button, 
+            #mobile-slider-container {
+                display: inline-block;
+                vertical-align: middle;
+                 /* THE CRITICAL FIX: Overrides the conflicting ".mobile button" style */
+                width: auto !important;
             }
 
             #mobile-top-bar button, #mobile-bottom-bar button {
