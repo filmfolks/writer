@@ -185,17 +185,23 @@
             display: none;
         }
 
+        /* This is the "Auto-Detector" for mobile devices */
         @media (max-width: 768px) {
             /* Hide all original desktop/mobile controls */
             #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
                 display: none !important;
             }
+            
+            /*
+            =====================================================================
+            CRITICAL FIX FOR MOBILE VIEW IS IN THE CSS RULE BELOW
+            =====================================================================
+            */
 
             /* Show and style new mobile bars */
             #mobile-top-bar, #mobile-bottom-bar {
                 display: flex;
                 align-items: center;
-                justify-content: flex-start;
                 position: fixed;
                 left: 0;
                 width: 100%;
@@ -205,11 +211,15 @@
                 z-index: 100;
                 padding: 0 5px;
                 box-sizing: border-box;
-                overflow-x: auto;
-                flex-wrap: nowrap; /* CRITICAL FIX: Force all items onto a single line */
-                white-space: nowrap; /* CRITICAL FIX: Fallback for older browsers */
+                
+                /* --- THESE ARE THE CRITICAL FIXES --- */
+                justify-content: flex-start !important; /* Force alignment to the left */
+                flex-wrap: nowrap !important; /* Force all buttons into a single line */
+                overflow-x: auto !important; /* Make the single line scrollable by swiping */
+                white-space: nowrap; /* A fallback for maximum compatibility */
             }
             
+            /* Cosmetic fix to hide the scrollbar itself but keep it scrollable */
             #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
                 display: none;
             }
