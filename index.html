@@ -329,6 +329,49 @@ margin-left: 4px;
 margin: 0 1px;
 padding: 2px 5px;
 }
+
+/* Compact buttons in mobile top bar /
+#mobile-top-bar button {
+/ shrink inner space around the label */
+padding: 2px 4px !important;
+
+/* shrink outer space between buttons */
+margin: 0 2px !important;
+
+/* allow buttons to be as narrow as their content */
+min-width: auto !important;
+max-width: none !important;
+
+/* keep text legible but compact */
+font-size: 15px;
+line-height: 1.1;
+}
+
+/* Optional: make icon-only buttons even tighter */
+#mobile-top-bar button[title="Save"],
+#mobile-top-bar button[title="Toggle Auto Save"],
+#mobile-top-bar button[title="Undo"],
+#mobile-top-bar button[title="Redo"],
+#mobile-top-bar button[title="Toggle Dark Mode"],
+#mobile-top-bar button[title="Toggle Full Screen"] {
+padding: 2px 3px !important;
+margin: 0 1.5px !important;
+}
+
+/* Ensure hamburger wrapper doesn’t add extra spacing */
+#mobile-slider-container {
+margin-left: 2px;
+}
+#mobile-slider-container > button {
+padding: 2px 4px !important;
+margin: 0 2px !important;
+}
+
+/* If earlier CSS enforced fixed widths, clear them /
+#mobile-top-bar button {
+width: auto !important;
+flex: 0 0 auto; / no stretching, no wrapping */
+}
         /* --- END OF MOBILE-SPECIFIC STYLES --- */
 
     </style>
