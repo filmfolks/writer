@@ -193,7 +193,8 @@
 
             /* Show and style new mobile bars */
             #mobile-top-bar, #mobile-bottom-bar {
-                display: block; /* Make the bars visible */
+                display: flex;
+                align-items: center;
                 position: fixed;
                 left: 0;
                 width: 100%;
@@ -205,41 +206,16 @@
                 box-sizing: border-box;
                 overflow-x: auto;
                 white-space: nowrap;
-                line-height: 45px;
+                justify-content: flex-start;
             }
-            
-            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
-                display: none;
-            }
-            #mobile-top-bar, #mobile-bottom-bar {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-
-            .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
-                background-color: #252525;
-                border-color: #444;
-            }
-
             #mobile-top-bar {
                 top: 0;
                 border-bottom: 1px solid var(--mobile-border-color, #ccc);
             }
-
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
             }
-
-            #mobile-top-bar button, 
-            #mobile-bottom-bar button, 
-            #mobile-slider-container {
-                display: inline-block;
-                vertical-align: middle;
-                 /* THE CRITICAL FIX: Overrides the conflicting ".mobile button" style */
-                width: auto !important;
-            }
-
             #mobile-top-bar button, #mobile-bottom-bar button {
                 background: none;
                 border: none;
@@ -248,6 +224,14 @@
                 font-weight: bold;
                 cursor: pointer;
                 padding: 5px 8px;
+                flex-shrink: 0;
+                min-width: 32px;
+                max-width: 60px;
+                display: inline-block;
+            }
+             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
+                background-color: #252525;
+                border-color: #444;
             }
              .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
                 color: #ddd;
@@ -259,19 +243,20 @@
                 padding: 15px !important;
             }
 
+            /* New Slider Menu for mobile */
             #mobile-slider-container {
                 position: relative;
             }
             #mobile-slider-menu {
                 display: none;
-                position: absolute;
-                top: 35px;
-                right: 0;
+                position: fixed; /* Changed to fixed to overlay everything */
+                top: 45px; /* Below the top bar */
+                right: 5px; /* Align to right edge with some margin */
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border: 1px solid var(--mobile-border-color, #ccc);
                 border-radius: 4px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                z-index: 101;
+                z-index: 1001; /* Increased z-index to be above editor */
                 width: 160px;
                 line-height: 1.5;
             }
@@ -305,7 +290,6 @@
     </style>
 </head>
 <body>
-    <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
     <div id="toolbar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Clear" onclick="clearText()">C</button>
@@ -326,6 +310,7 @@
     </div>
 
     <div id="mobile-top-bar">
+        <button title="Save" onclick="handleSave()">S</button> <!-- Added Save button -->
         <button title="Increase Font Size" onclick="increaseFont()">+</button>
         <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
         <button title="Clear" onclick="clearText()">C</button>
