@@ -198,15 +198,15 @@
                 position: fixed;
                 left: 0;
                 width: 100%;
-                height: 45px;
+                height: auto; /* Allow height to adjust with wrapped content */
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border-color: var(--mobile-border-color, #ccc);
                 z-index: 100;
-                padding: 0 5px;
+                padding: 5px;
                 box-sizing: border-box;
-                overflow-x: auto;
-                white-space: nowrap;
-                justify-content: flex-start;
+                flex-wrap: wrap; /* Allow buttons to wrap */
+                justify-content: space-around;
+                overflow: visible; /* No scroll, let wrap handle it */
             }
             #mobile-top-bar {
                 top: 0;
@@ -220,14 +220,13 @@
                 background: none;
                 border: none;
                 color: var(--mobile-btn-color, #000);
-                font-size: 16px; /* Reduced font size */
+                font-size: 18px;
                 font-weight: bold;
                 cursor: pointer;
-                padding: 5px 6px; /* Reduced padding */
-                flex-shrink: 0;
-                min-width: 30px; /* Reduced min-width */
-                max-width: 50px; /* Reduced max-width */
-                display: inline-block;
+                padding: 5px 8px;
+                flex: 1 1 auto; /* Flexible width to fit */
+                min-width: 40px;
+                text-align: center;
             }
              .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
                 background-color: #252525;
@@ -238,8 +237,8 @@
             }
 
             #editor {
-                height: calc(100vh - 90px) !important;
-                margin-top: 45px;
+                height: calc(100vh - 100px) !important; /* Adjusted for potential multi-row bars */
+                margin-top: 50px;
                 padding: 15px !important;
             }
 
@@ -285,11 +284,11 @@
                 margin-top: 0;
             }
 
-            /* Fullscreen exit symbol in mobile fullscreen mode */
-            #mobile-fullscreen-exit {
+            /* Focus Mode Exit Button */
+            #exit-focus-btn {
                 display: none;
             }
-            .fullscreen #mobile-fullscreen-exit {
+            .focus-mode #exit-focus-btn {
                 display: block;
                 position: fixed;
                 top: 10px;
@@ -396,9 +395,6 @@
             <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
         </div>
     </div>
-
-    <!-- Mobile Fullscreen Exit Button -->
-    <button id="mobile-fullscreen-exit" onclick="toggleFullScreen()">⛶</button>
 
     <script>
         // --- START: New function for mobile slider menu ---
@@ -724,36 +720,35 @@
         }
 
         function formatText(type) {
-            I2 = 1;
-            const editor = document.getElementById('editor');
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
+             const editor = document.getElementById('editor');
+             const selection = window.getSelection();
+             if (!selection.rangeCount) return;
 
-            const range = selection.getRangeAt(0);
-            const selectedText = range.toString();
-            let formattedText; 
+             const range = selection.getRangeAt(0);
+             const selectedText = range.toString();
+             let formattedText; 
 
-            switch (type) {
-                case 'bold': formattedText = `**${selectedText}**`; break;
-                case 'italic': formattedText = `*${selectedText}*`; break;
-                case 'heading1': formattedText = `# ${selectedText}`; break;
-                case 'heading2': formattedText = `## ${selectedText}`; break;
-                case 'link': const url = prompt('Enter URL:') || '#'; formattedText = `[${selectedText}](${url})`; break;
-                case 'image': const imgUrl = prompt('Enter image URL:'); formattedText = `![${selectedText}](${imgUrl})`; break;
-                case 'list': formattedText = `- ${selectedText}`; break;
-                case 'numberedList': formattedText = `1. ${selectedText}`; break;
-                case 'quote': formattedText = `> ${selectedText}`; break;
-                case 'code': formattedText = `\`${selectedText}\``; break;
-                case 'table': formattedText = '| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |'; break;
-                case 'footnote': const note = prompt('Enter footnote ID:'); formattedText = `${selectedText}[^${note}]`; break;
-                default: formattedText = selectedText;
-            }
+             switch (type) {
+                 case 'bold': formattedText = `**${selectedText}**`; break;
+                 case 'italic': formattedText = `*${selectedText}*`; break;
+                 case 'heading1': formattedText = `# ${selectedText}`; break;
+                 case 'heading2': formattedText = `## ${selectedText}`; break;
+                 case 'link': const url = prompt('Enter URL:') || '#'; formattedText = `[${selectedText}](${url})`; break;
+                 case 'image': const imgUrl = prompt('Enter image URL:'); formattedText = `![${selectedText}](${imgUrl})`; break;
+                 case 'list': formattedText = `- ${selectedText}`; break;
+                 case 'numberedList': formattedText = `1. ${selectedText}`; break;
+                 case 'quote': formattedText = `> ${selectedText}`; break;
+                 case 'code': formattedText = `\`${selectedText}\``; break;
+                 case 'table': formattedText = '| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |'; break;
+                 case 'footnote': const note = prompt('Enter footnote ID:'); formattedText = `${selectedText}[^${note}]`; break;
+                 default: formattedText = selectedText;
+             }
 
-            range.deleteContents();
-            range.insertNode(document.createTextNode(formattedText));
-            
-            saveToHistory();
-            updateStats();
+             range.deleteContents();
+             range.insertNode(document.createTextNode(formattedText));
+             
+             saveToHistory();
+             updateStats();
         }
 
         document.addEventListener('fullscreenchange', () => {
@@ -786,29 +781,6 @@
 
         saveToHistory();
         updateStats();
-
-        // Hide slider menu after clicking an item (only for mobile)
-        if (isMobile()) {
-            document.querySelectorAll('#mobile-slider-menu button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById('mobile-slider-menu').classList.remove('show');
-                });
-            });
-        }
-
-        // Fullscreen exit button for mobile
-        if (isMobile()) {
-            const exitBtn = document.createElement('button');
-            exitBtn.id = 'mobile-fullscreen-exit';
-            exitBtn.innerText = '⛶';
-            exitBtn.onclick = toggleFullScreen;
-            document.body.appendChild(exitBtn);
-
-            document.addEventListener('fullscreenchange', () => {
-                const isFullscreen = !!document.fullscreenElement;
-                exitBtn.style.display = isFullscreen ? 'block' : 'none';
-            });
-        }
 
     </script>
 </body>
