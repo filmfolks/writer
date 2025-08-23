@@ -208,6 +208,7 @@
                 white-space: nowrap;
                 justify-content: flex-start;
             }
+            
             #mobile-top-bar {
                 top: 0;
                 border-bottom: 1px solid var(--mobile-border-color, #ccc);
@@ -255,9 +256,9 @@
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border: 1px solid var(--mobile-border-color, #ccc);
                 border-radius: 4px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
                 z-index: 1001; /* Increased z-index to be above editor */
-                width: 160px;
+                width: 120px;
                 line-height: 1.5;
             }
             .dark-mode #mobile-slider-menu {
@@ -302,6 +303,32 @@
                 justify-content: space-around;
             }
         }
+        /* Tighter spacing for top bar buttons in mobile /
+#mobile-top-bar {
+gap: 0; / if you’re using flex gap */
+}
+
+#mobile-top-bar button {
+margin: 0 2px; /* reduce space between buttons /
+padding: 3px 6px; / reduce inner padding /
+font-size: 16px; / optional, slightly smaller /
+min-width: auto; / allow narrower width /
+max-width: none; / remove width cap */
+}
+
+/* Optional: slightly reduce spacing around hamburger wrapper */
+#mobile-slider-container {
+margin-left: 4px;
+}
+
+/* Optional: even tighter for icon buttons */
+#mobile-top-bar button[title="Undo"],
+#mobile-top-bar button[title="Redo"],
+#mobile-top-bar button[title="Toggle Dark Mode"],
+#mobile-top-bar button[title="Toggle Full Screen"] {
+margin: 0 1px;
+padding: 2px 5px;
+}
         /* --- END OF MOBILE-SPECIFIC STYLES --- */
 
     </style>
