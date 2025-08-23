@@ -419,7 +419,6 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Insert Image" onclick="formatText('image')">Img</button>
         <button title="Numbered List" onclick="formatText('numberedList')">🔢</button>
         <button title="Blockquote" onclick="formatText('quote')">></button>
-        <button title="Code" onclick="formatText('code')">Code</button>
         <button title="Insert Table" onclick="formatText('table')">▦</button>
         <button title="Insert Footnote" onclick="formatText('footnote')">📎</button>
     </div>
@@ -602,7 +601,6 @@ flex: 0 0 auto; / no stretching, no wrapping */
              text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
              text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
              text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
-             text = text.replace(/`(.*?)`/g, '<code>$1</code>');
              text = text.replace(/^[-*]{3,}/gm, '<hr>');
              text = text.replace(/\n/g, '<br />');
              return text;
