@@ -162,55 +162,6 @@
         .mobile #editor { font-size: 18px; padding: 15px; }
         .mobile #stats { margin-top: 10px; }
 
-        /* --- COPY AND PASTE THIS ENTIRE BLOCK --- */
-
-            /* Show and style new mobile bars */
-            #mobile-top-bar, #mobile-bottom-bar {
-                display: flex;
-                align-items: center;
-                /* CHANGED: Align buttons to the start instead of spacing them out */
-                justify-content: flex-start; 
-                position: fixed;
-                left: 0;
-                width: 100%;
-                height: 45px;
-                background-color: var(--mobile-bar-bg, #f5f5f5);
-                border-color: var(--mobile-border-color, #ccc);
-                z-index: 100;
-                padding: 0 5px;
-                box-sizing: border-box;
-                /* ADDED: Allow horizontal scrolling for both bars */
-                overflow-x: auto;
-                /* REMOVED flex-wrap from the bottom bar as scrolling is better */
-            }
-            
-            /* ADDED: Cosmetic fix to hide the scrollbar track but keep scrolling ability */
-            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
-                display: none; /* For Chrome, Safari, and Opera */
-            }
-            #mobile-top-bar, #mobile-bottom-bar {
-                -ms-overflow-style: none;  /* For IE and Edge */
-                scrollbar-width: none;  /* For Firefox */
-            }
-
-
-            .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
-                background-color: #252525;
-                border-color: #444;
-            }
-
-            #mobile-top-bar {
-                top: 0;
-                border-bottom: 1px solid var(--mobile-border-color, #ccc);
-            }
-
-            #mobile-bottom-bar {
-                bottom: 0;
-                border-top: 1px solid var(--mobile-border-color, #ccc);
-            }
-
-            /* --- END OF THE BLOCK TO PASTE --- */
-
         /* Suggestion sidebar */
         #suggestion {
             background-color: #f0f0f0; border-left: 1px solid #ccc; padding: 10px; display: none; position: fixed; top: 0; right: 0; bottom: 0; width: 300px; overflow-y: auto; z-index: 1000;
@@ -244,7 +195,7 @@
             #mobile-top-bar, #mobile-bottom-bar {
                 display: flex;
                 align-items: center;
-                justify-content: space-around;
+                justify-content: flex-start; /* FIX: Align buttons to the left */
                 position: fixed;
                 left: 0;
                 width: 100%;
@@ -254,7 +205,18 @@
                 z-index: 100;
                 padding: 0 5px;
                 box-sizing: border-box;
+                overflow-x: auto; /* FIX: Allow horizontal scrolling */
             }
+            
+            /* Cosmetic fix to hide the scrollbar track but keep scrolling ability */
+            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
+                display: none; /* For Chrome, Safari, and Opera */
+            }
+            #mobile-top-bar, #mobile-bottom-bar {
+                -ms-overflow-style: none;  /* For IE and Edge */
+                scrollbar-width: none;  /* For Firefox */
+            }
+
             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
                 background-color: #252525;
                 border-color: #444;
@@ -268,8 +230,6 @@
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
-                flex-wrap: wrap; /* Allow wrapping if too many buttons */
-                overflow-x: auto;
             }
 
             #mobile-top-bar button, #mobile-bottom-bar button {
@@ -280,14 +240,14 @@
                 font-weight: bold;
                 cursor: pointer;
                 padding: 5px 8px;
-                flex-shrink: 0; /* Prevent buttons from shrinking */
+                flex-shrink: 0;
             }
              .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
                 color: #ddd;
             }
 
             #editor {
-                height: calc(100vh - 90px) !important; /* Full height minus top and bottom bars */
+                height: calc(100vh - 90px) !important;
                 margin-top: 45px;
                 padding: 15px !important;
             }
@@ -753,7 +713,7 @@
 
              const range = selection.getRangeAt(0);
              const selectedText = range.toString();
-             let replacementNode;
+             let formattedText; // Changed to let
 
              switch (type) {
                  case 'bold': formattedText = `**${selectedText}**`; break;
