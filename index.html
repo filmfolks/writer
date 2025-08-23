@@ -148,7 +148,7 @@
             display: none;
         }
 
-        /* Original mobile styles */
+        /* Original mobile styles that caused conflicts */
         .mobile #toolbar {
             position: fixed; top: 0; left: -100%; width: 250px; height: 100vh; flex-direction: column; justify-content: flex-start; padding: 20px; transition: left 0.3s ease-in-out; z-index: 2000; overflow-y: auto;
         }
@@ -186,12 +186,10 @@
         }
 
         @media (max-width: 768px) {
-            /* Hide all original desktop/mobile controls */
             #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
                 display: none !important;
             }
 
-            /* Show and style new mobile bars */
             #mobile-top-bar, #mobile-bottom-bar {
                 display: flex;
                 align-items: center;
@@ -201,22 +199,41 @@
                 height: 45px;
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border-color: var(--mobile-border-color, #ccc);
-                z-index: 100;
+                z-index: 200;
                 padding: 0 5px;
                 box-sizing: border-box;
                 overflow-x: auto;
-                white-space: nowrap;
-                justify-content: flex-start;
+                flex-wrap: nowrap;
             }
             
+            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
+                display: none;
+            }
+            #mobile-top-bar, #mobile-bottom-bar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
+                background-color: #252525;
+                border-color: #444;
+            }
+
             #mobile-top-bar {
                 top: 0;
                 border-bottom: 1px solid var(--mobile-border-color, #ccc);
             }
+
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
             }
+
+            #mobile-top-bar > *, 
+            #mobile-bottom-bar > * {
+                flex-shrink: 0;
+            }
+
             #mobile-top-bar button, #mobile-bottom-bar button {
                 background: none;
                 border: none;
@@ -225,14 +242,7 @@
                 font-weight: bold;
                 cursor: pointer;
                 padding: 5px 8px;
-                flex-shrink: 0;
-                min-width: 32px;
-                max-width: 60px;
-                display: inline-block;
-            }
-             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
-                background-color: #252525;
-                border-color: #444;
+                width: auto !important;
             }
              .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
                 color: #ddd;
@@ -244,31 +254,29 @@
                 padding: 15px !important;
             }
 
-            /* New Slider Menu for mobile */
             #mobile-slider-container {
                 position: relative;
             }
             #mobile-slider-menu {
                 display: none;
-                position: fixed; /* Changed to fixed to overlay everything */
-                top: 45px; /* Below the top bar */
-                right: 5px; /* Align to right edge with some margin */
+                position: absolute;
+                top: 45px; 
+                left: 0;
                 background-color: var(--mobile-bar-bg, #f5f5f5);
                 border: 1px solid var(--mobile-border-color, #ccc);
                 border-radius: 4px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                z-index: 1001; /* Increased z-index to be above editor */
-                width: 120px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 201;
+                width: 160px;
                 line-height: 1.5;
             }
             .dark-mode #mobile-slider-menu {
                  background-color: #333;
                  border-color: #555;
             }
-
             #mobile-slider-menu button {
                 display: block;
-                width: 100%;
+                width: 100% !important;
                 text-align: left;
                 font-size: 14px;
                 padding: 10px 15px;
@@ -276,7 +284,6 @@
             #mobile-slider-menu.show {
                 display: block;
             }
-
             .focus-mode #mobile-top-bar,
             .focus-mode #mobile-bottom-bar {
                 display: none;
@@ -285,88 +292,49 @@
                 height: 100vh !important;
                 margin-top: 0;
             }
-
-            /* Mobile specific changes - only these in top bar */
-            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], #mobile-slider-container button) {
-                display: none !important;
-            }
-
-            /* Shift + - 🌙 ⛶  to bottom bar and order as C + - B 🌙 ⛶ then others */
-            #mobile-bottom-bar {
-                display: flex;
-                justify-content: space-around;
-            }
         }
-        /* Tighter spacing for top bar buttons in mobile /
-#mobile-top-bar {
-gap: 0; / if you’re using flex gap */
-}
-
-#mobile-top-bar button {
-margin: 0 2px; /* reduce space between buttons /
-padding: 3px 6px; / reduce inner padding /
-font-size: 16px; / optional, slightly smaller /
-min-width: auto; / allow narrower width /
-max-width: none; / remove width cap */
-}
-
-/* Optional: slightly reduce spacing around hamburger wrapper */
-#mobile-slider-container {
-margin-left: 1px;
-}
-
-/* Optional: even tighter for icon buttons */
-#mobile-top-bar button[title="Undo"],
-#mobile-top-bar button[title="Redo"],
-#mobile-top-bar button[title="Toggle Dark Mode"],
-#mobile-top-bar button[title="Toggle Full Screen"] {
-margin: 0 1px;
-padding: 0px 0px;
-}
-
-/* Compact buttons in mobile top bar /
-#mobile-top-bar button {
-/ shrink inner space around the label */
-padding: 2px 4px !important;
-
-/* shrink outer space between buttons */
-margin: 0 0px !important;
-
-/* allow buttons to be as narrow as their content */
-min-width: auto !important;
-max-width: none !important;
-
-/* keep text legible but compact */
-font-size: 15px;
-line-height: 1.1;
-}
-
-/* Optional: make icon-only buttons even tighter */
-#mobile-top-bar button[title="Save"],
-#mobile-top-bar button[title="Toggle Auto Save"],
-#mobile-top-bar button[title="Undo"],
-#mobile-top-bar button[title="Redo"],
-#mobile-top-bar button[title="Toggle Dark Mode"],
-#mobile-top-bar button[title="Toggle Full Screen"] {
-padding: 2px 3px !important;
-margin: 0 1.5px !important;
-}
-
-/* Ensure hamburger wrapper doesn’t add extra spacing */
-#mobile-slider-container {
-margin-left: 2px;
-}
-#mobile-slider-container > button {
-padding: 2px 4px !important;
-margin: 0 2px !important;
-}
-
-/* If earlier CSS enforced fixed widths, clear them /
-#mobile-top-bar button {
-width: auto !important;
-flex: 0 0 auto; / no stretching, no wrapping */
-}
         /* --- END OF MOBILE-SPECIFIC STYLES --- */
+
+        /* --- START: Styles for the Custom Modal --- */
+        #api-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        #api-modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
+        }
+        .dark-mode #api-modal-content {
+            background-color: #333;
+            color: #ddd;
+        }
+        #api-modal-content h3 {
+            margin-top: 0;
+        }
+        #api-modal-content p {
+            line-height: 1.6;
+        }
+        #api-modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+        #api-modal-buttons button {
+            margin-left: 10px;
+        }
+        /* --- END: Styles for the Custom Modal --- */
 
     </style>
 </head>
@@ -379,8 +347,8 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
         <button title="Search and Replace" onclick="searchReplace()">Search/Replace</button>
         <button title="Toggle Focus Mode" onclick="toggleFocusMode()">Focus Mode</button>
-        <button title="Undo" onclick="undo()">↶</button>
-        <button title="Redo" onclick="redo()">↷</button>
+        <button title="Undo" onclick="undo()">Undo</button>
+        <button title="Redo" onclick="redo()">Redo</button>
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
         <button title="Gemini API Instructions" onclick="showApiInstructions()">i</button>
         <button title="Set Gemini API Key" onclick="setApiKey()">API Key</button>
@@ -391,7 +359,7 @@ flex: 0 0 auto; / no stretching, no wrapping */
     </div>
 
     <div id="mobile-top-bar">
-         <div id="mobile-slider-container">
+        <div id="mobile-slider-container">
             <button onclick="toggleMobileSliderMenu()">ai☰</button>
             <div id="mobile-slider-menu">
                 <button onclick="showApiInstructions()"> AI Instructions</button>
@@ -399,19 +367,19 @@ flex: 0 0 auto; / no stretching, no wrapping */
                 <button onclick="getAiSuggestion()"> AI Suggest</button>
                 <button onclick="getAiProofread()"> AI Proofread</button>
             </div>
+        </div>
         <button title="Save" onclick="handleSave()">S</button>
-        <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
+        <button title="Auto Save" onclick="toggleAutoSave()">🔄</button>
         <button title="Undo" onclick="undo()">↶</button>
         <button title="Redo" onclick="redo()">↷</button>
-        </div>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
     </div>
     <div id="mobile-bottom-bar">
         <button title="Clear" onclick="clearText()">C</button>
-        <button title="Increase Font Size" onclick="increaseFont()">+</button>
-        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
-         <button title="Bold" onclick="formatText('bold')">B</button>
-        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
-        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
+        <button title="Zoom In" onclick="increaseFont()">+</button>
+        <button title="Zoom Out" onclick="decreaseFont()">-</button>
+        <button title="Bold" onclick="formatText('bold')">B</button>
         <button title="Italic" onclick="formatText('italic')">I</button>
         <button title="Heading 1" onclick="formatText('heading1')">#</button>
         <button title="Heading 2" onclick="formatText('heading2')">##</button>
@@ -419,9 +387,8 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Insert Image" onclick="formatText('image')">Img</button>
         <button title="Numbered List" onclick="formatText('numberedList')">🔢</button>
         <button title="Blockquote" onclick="formatText('quote')">></button>
-        <button title="Code" onclick="formatText('code')">Code</button>
-        <button title="Insert Table" onclick="formatText('table')">▦</button>
-        <button title="Insert Footnote" onclick="formatText('footnote')">📎</button>
+        <button title="Table" onclick="formatText('table')">▦</button>
+        <button title="Footnote" onclick="formatText('footnote')">📎</button>
     </div>
     
     <div id="fullscreen-controls">
@@ -439,10 +406,8 @@ flex: 0 0 auto; / no stretching, no wrapping */
             <button title="Heading 2" onclick="formatText('heading2')">##</button>
             <button title="Insert Link" onclick="formatText('link')">Link</button>
             <button title="Insert Image" onclick="formatText('image')">Img</button>
-            <button title="Unordered List" onclick="formatText('list')">-</button>
             <button title="Numbered List" onclick="formatText('numberedList')">1.</button>
             <button title="Blockquote" onclick="formatText('quote')">></button>
-            <button title="Code" onclick="formatText('code')">Code</button>
             <button title="Insert Table" onclick="formatText('table')">Table</button>
             <button title="Insert Footnote" onclick="formatText('footnote')">Footnote</button>
         </div>
@@ -455,25 +420,50 @@ flex: 0 0 auto; / no stretching, no wrapping */
         </div>
     </div>
 
+    <div id="api-modal-overlay">
+        <div id="api-modal-content">
+            <h3>How to get a Gemini API Key</h3>
+            <p>
+                1. Visit the Google AI Studio website.<br>
+                2. Sign in with your Google account.<br>
+                3. Generate a new API key.<br>
+                4. Copy and paste it using the "API Key" button in this app.
+            </p>
+            <div id="api-modal-buttons">
+                <button onclick="closeApiInstructions()">Close</button>
+                <button onclick="openApiLink()">Open Link</button>
+            </div>
+        </div>
+    </div>
     <script>
-        // --- START: New function for mobile slider menu ---
+        // --- START: Functions for the custom modal ---
+        function showApiInstructions() {
+            document.getElementById('api-modal-overlay').style.display = 'flex';
+        }
+
+        function closeApiInstructions() {
+            document.getElementById('api-modal-overlay').style.display = 'none';
+        }
+
+        function openApiLink() {
+            window.open('https://aistudio.google.com/app/apikey', '_blank');
+            closeApiInstructions();
+        }
+        // --- END: Functions for the custom modal ---
+
         function toggleMobileSliderMenu() {
             document.getElementById('mobile-slider-menu').classList.toggle('show');
         }
-        // --- END: New function ---
 
-        // Detect if user is on mobile browser
         function isMobile() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             return /android|iPad|iPhone|iPod|windows phone/i.test(userAgent) && !window.MSStream;
         }
 
-        // Apply mobile class if detected (for original slider menu)
         if (isMobile()) {
             document.body.classList.add('mobile');
         }
 
-        // Mobile menu toggle (for original slider menu)
         function toggleMobileMenu() {
             const toolbar = document.getElementById('toolbar');
             toolbar.classList.toggle('open');
@@ -665,10 +655,6 @@ flex: 0 0 auto; / no stretching, no wrapping */
             }
         }
 
-        function showApiInstructions() {
-            alert('To get a Gemini API key:\n1. Visit https://aistudio.google.com/app/apikey\n2. Sign in with your Google account.\n3. Generate an API key.\n4. Copy and paste it using the "API Key" button in this app.');
-        }
-
         function setApiKey() {
             const apiKey = prompt('Enter your Gemini API Key:');
             if (apiKey) {
@@ -680,7 +666,7 @@ flex: 0 0 auto; / no stretching, no wrapping */
         async function getAiSuggestion() {
             const apiKey = localStorage.getItem('geminiApiKey');
             if (!apiKey) {
-                alert('Please set your Gemini API Key first.');
+                showApiInstructions();
                 return;
             }
             const editor = document.getElementById('editor');
@@ -729,7 +715,7 @@ flex: 0 0 auto; / no stretching, no wrapping */
         async function getAiProofread() {
             const apiKey = localStorage.getItem('geminiApiKey');
             if (!apiKey) {
-                alert('Please set your Gemini API Key first.');
+                showApiInstructions();
                 return;
             }
             const editor = document.getElementById('editor');
@@ -777,38 +763,78 @@ flex: 0 0 auto; / no stretching, no wrapping */
             saveToHistory();
             updateStats();
         }
-
+        
         function formatText(type) {
-             const editor = document.getElementById('editor');
-             const selection = window.getSelection();
-             if (!selection.rangeCount) return;
+            let command = '';
+            let value = null;
 
-             const range = selection.getRangeAt(0);
-             const selectedText = range.toString();
-             let formattedText; 
+            switch (type) {
+                case 'bold':
+                    command = 'bold';
+                    break;
+                case 'italic':
+                    command = 'italic';
+                    break;
+                case 'heading1':
+                    command = 'formatBlock';
+                    value = 'H1';
+                    break;
+                case 'heading2':
+                    command = 'formatBlock';
+                    value = 'H2';
+                    break;
+                case 'numberedList':
+                    command = 'insertOrderedList';
+                    break;
+                case 'quote':
+                    command = 'formatBlock';
+                    value = 'BLOCKQUOTE';
+                    break;
+                case 'table':
+                    const tableHTML = '<table border="1" width="100%"><tbody><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></tbody></table><p><br></p>';
+                    document.execCommand('insertHTML', false, tableHTML);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                
+                case 'link':
+                    const url = prompt('Enter URL:') || 'https://example.com';
+                    if (url) {
+                        document.execCommand('createLink', false, url);
+                    }
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'image':
+                    const imgUrl = prompt('Enter image URL:') || 'https://example.com/image.jpg';
+                    if (imgUrl) {
+                        document.execCommand('insertImage', false, imgUrl);
+                    }
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'footnote':
+                    const note = prompt('Enter footnote text:') || 'note';
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const sup = document.createElement('sup');
+                        sup.textContent = `[${note}]`;
+                        range.insertNode(sup);
+                    }
+                    saveToHistory();
+                    updateStats();
+                    return;
+            }
 
-             switch (type) {
-                 case 'bold': formattedText = `**${selectedText}**`; break;
-                 case 'italic': formattedText = `*${selectedText}*`; break;
-                 case 'heading1': formattedText = `# ${selectedText}`; break;
-                 case 'heading2': formattedText = `## ${selectedText}`; break;
-                 case 'link': const url = prompt('Enter URL:') || '#'; formattedText = `[${selectedText}](${url})`; break;
-                 case 'image': const imgUrl = prompt('Enter image URL:'); formattedText = `![${selectedText}](${imgUrl})`; break;
-                 case 'list': formattedText = `- ${selectedText}`; break;
-                 case 'numberedList': formattedText = `1. ${selectedText}`; break;
-                 case 'quote': formattedText = `> ${selectedText}`; break;
-                 case 'code': formattedText = `\`${selectedText}\``; break;
-                 case 'table': formattedText = '| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |'; break;
-                 case 'footnote': const note = prompt('Enter footnote ID:'); formattedText = `${selectedText}[^${note}]`; break;
-                 default: formattedText = selectedText;
-             }
-
-             range.deleteContents();
-             range.insertNode(document.createTextNode(formattedText));
-             
-             saveToHistory();
-             updateStats();
+            if (command) {
+                document.execCommand(command, false, value);
+            }
+            
+            saveToHistory();
+            updateStats();
         }
+
 
         document.addEventListener('fullscreenchange', () => {
             const isFullscreen = !!document.fullscreenElement;
