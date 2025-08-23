@@ -180,23 +180,16 @@
         #footer.hidden { opacity: 0; pointer-events: none; }
         #footer.visible { opacity: 1; pointer-events: auto; }
         
-        /* --- START OF MOBILE-SPECIFIC STYLES --- */
+        /* --- START OF NEW MOBILE-SPECIFIC STYLES --- */
         #mobile-top-bar, #mobile-bottom-bar {
             display: none;
         }
 
-        /* This is the "Auto-Detector" for mobile devices */
         @media (max-width: 768px) {
             /* Hide all original desktop/mobile controls */
             #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
                 display: none !important;
             }
-            
-            /*
-            =====================================================================
-            CRITICAL FIX FOR MOBILE VIEW IS IN THE CSS RULE BELOW
-            =====================================================================
-            */
 
             /* Show and style new mobile bars */
             #mobile-top-bar, #mobile-bottom-bar {
@@ -211,23 +204,9 @@
                 z-index: 100;
                 padding: 0 5px;
                 box-sizing: border-box;
-                
-                /* --- THESE ARE THE CRITICAL FIXES --- */
-                justify-content: flex-start !important; /* Force alignment to the left */
-                flex-wrap: nowrap !important; /* Force all buttons into a single line */
-                overflow-x: auto !important; /* Make the single line scrollable by swiping */
-                white-space: nowrap; /* A fallback for maximum compatibility */
+                overflow-x: auto; /* Allow horizontal scrolling for buttons */
+                white-space: nowrap; /* Prevent wrapping */
             }
-            
-            /* Cosmetic fix to hide the scrollbar itself but keep it scrollable */
-            #mobile-top-bar::-webkit-scrollbar, #mobile-bottom-bar::-webkit-scrollbar {
-                display: none;
-            }
-            #mobile-top-bar, #mobile-bottom-bar {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-
             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
                 background-color: #252525;
                 border-color: #444;
@@ -236,11 +215,13 @@
             #mobile-top-bar {
                 top: 0;
                 border-bottom: 1px solid var(--mobile-border-color, #ccc);
+                justify-content: flex-start; /* Align to left with scroll */
             }
 
             #mobile-bottom-bar {
                 bottom: 0;
                 border-top: 1px solid var(--mobile-border-color, #ccc);
+                justify-content: flex-start; /* Align to left with scroll */
             }
 
             #mobile-top-bar button, #mobile-bottom-bar button {
@@ -251,18 +232,20 @@
                 font-weight: bold;
                 cursor: pointer;
                 padding: 5px 8px;
-                flex-shrink: 0;
+                flex-shrink: 0; /* Prevent buttons from shrinking */
+                display: inline-block; /* Ensure they line up */
             }
              .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
                 color: #ddd;
             }
 
             #editor {
-                height: calc(100vh - 90px) !important;
+                height: calc(100vh - 90px) !important; /* Full height minus top and bottom bars */
                 margin-top: 45px;
                 padding: 15px !important;
             }
 
+            /* New Slider Menu for mobile */
             #mobile-slider-container {
                 position: relative;
             }
@@ -276,7 +259,7 @@
                 border-radius: 4px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
                 z-index: 101;
-                width: 160px;
+                width: 150px;
             }
             .dark-mode #mobile-slider-menu {
                  background-color: #333;
@@ -294,6 +277,7 @@
                 display: block;
             }
 
+            /* Focus Mode adjustments for new mobile UI */
             .focus-mode #mobile-top-bar,
             .focus-mode #mobile-bottom-bar {
                 display: none;
@@ -302,13 +286,20 @@
                 height: 100vh !important;
                 margin-top: 0;
             }
+
+            /* Adjustments for smaller screens */
+            @media (max-width: 480px) {
+                #mobile-top-bar button, #mobile-bottom-bar button {
+                    font-size: 16px; /* Slightly smaller font for very small screens */
+                    padding: 5px 6px;
+                }
+            }
         }
-        /* --- END OF MOBILE-SPECIFIC STYLES --- */
+        /* --- END OF NEW MOBILE-SPECIFIC STYLES --- */
 
     </style>
 </head>
 <body>
-    <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
     <div id="toolbar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Clear" onclick="clearText()">C</button>
@@ -723,7 +714,7 @@
 
              const range = selection.getRangeAt(0);
              const selectedText = range.toString();
-             let formattedText; 
+             let replacementNode;
 
              switch (type) {
                  case 'bold': formattedText = `**${selectedText}**`; break;
