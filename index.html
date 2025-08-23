@@ -287,11 +287,11 @@
             }
 
             /* Mobile specific changes - only these in top bar */
-            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], [title="Toggle Dark Mode"], [title="Toggle Full Screen"],  #mobile-slider-container button) {
+            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], #mobile-slider-container button) {
                 display: none !important;
             }
 
-            /* Shift + - to bottom bar and order as C + - then others */
+            /* Shift + - 🌙 ⛶  to bottom bar and order as C + - B I # 🌙 ⛶ then others */
             #mobile-bottom-bar {
                 display: flex;
                 justify-content: space-around;
@@ -312,7 +312,7 @@ max-width: none; / remove width cap */
 
 /* Optional: slightly reduce spacing around hamburger wrapper */
 #mobile-slider-container {
-margin-left: 4px;
+margin-left: 1px;
 }
 
 /* Optional: even tighter for icon buttons */
@@ -403,8 +403,6 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
         <button title="Undo" onclick="undo()">↩️</button>
         <button title="Redo" onclick="redo()">↪️</button>
-        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
-        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         </div>
     </div>
     <div id="mobile-bottom-bar">
@@ -414,6 +412,8 @@ flex: 0 0 auto; / no stretching, no wrapping */
         <button title="Bold" onclick="formatText('bold')">B</button>
         <button title="Italic" onclick="formatText('italic')">I</button>
         <button title="Heading 1" onclick="formatText('heading1')">#</button>
+         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         <button title="Heading 2" onclick="formatText('heading2')">##</button>
         <button title="Insert Link" onclick="formatText('link')">Link</button>
         <button title="Insert Image" onclick="formatText('image')">Img</button>
