@@ -7,6 +7,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
+        :root {
+            --mobile-bar-bg: #f5f5f5;
+            --mobile-btn-color: #000;
+            --mobile-border-color: #ccc;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -34,10 +40,10 @@
             cursor: pointer;
             margin: 2px;
             font-family: 'Roboto', sans-serif;
-            font-weight: 500; /* Medium weight for a modern feel */
-            border-radius: 4px; /* Rounded corners for sleekness */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
+            font-weight: 500;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         button:hover {
             background-color: #777;
@@ -97,6 +103,11 @@
             background-color: #222;
             color: #ddd;
         }
+        .dark-mode:root {
+            --mobile-bar-bg: #252525;
+            --mobile-btn-color: #ddd;
+            --mobile-border-color: #444;
+        }
         .dark-mode #editor,
         .dark-mode #preview {
             background-color: #333;
@@ -107,11 +118,11 @@
         }
         .dark-mode button {
             background-color: #444;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Adjusted shadow for dark mode */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .dark-mode button:hover {
             background-color: #666;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
         }
         .dark-mode #footer {
             background-color: #444;
@@ -137,157 +148,149 @@
             display: none;
         }
 
-        /* Mobile-specific styles (only change mobile) */
-        @media (max-width: 768px) {
-            #toolbar, #fullscreen-controls { /* Hide desktop toolbar */
-                display: none;
-            }
-            #footer { /* Keep footer but position at bottom for formatting buttons */
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: 5px;
-                background-color: #eee;
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                z-index: 1000;
-            }
-            .dark-mode #footer {
-                background-color: #444;
-            }
-            #formatting-tools {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            #formatting-tools button {
-                margin: 2px;
-                padding: 8px;
-                font-size: 16px;
-            }
-            #stats {
-                display: none; /* Hide stats on mobile to save space */
-            }
-            #fullscreen-footer-controls {
-                display: none; /* Hide duplicate controls on mobile */
-            }
-
-            /* Top bar for + - C F Undo Redo A Dark Full Screen */
-            #mobile-top-bar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background-color: #333;
-                padding: 10px;
-                display: flex;
-                justify-content: space-around;
-                z-index: 2000;
-            }
-            .dark-mode #mobile-top-bar {
-                background-color: #111;
-            }
-
-            /* Slider for API key, AI suggest, Proofread */
-            #mobile-slider {
-                position: fixed;
-                top: 50px; /* Below top bar */
-                left: -250px;
-                width: 250px;
-                background-color: #333;
-                padding: 20px;
-                transition: left 0.3s ease-in-out;
-                z-index: 1500;
-                overflow-y: auto;
-            }
-            #mobile-slider.open {
-                left: 0;
-            }
-            .dark-mode #mobile-slider {
-                background-color: #111;
-            }
-
-            /* Slider toggle button (e.g., hamburger) */
-            #slider-toggle {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                z-index: 2500;
-                display: block;
-            }
-
-            /* Give more room for writing */
-            #editor {
-                padding-top: 60px; /* Space for top bar */
-                padding-bottom: 60px; /* Space for footer */
-            }
+        /* Original mobile styles */
+        .mobile #toolbar {
+            position: fixed; top: 0; left: -100%; width: 250px; height: 100vh; flex-direction: column; justify-content: flex-start; padding: 20px; transition: left 0.3s ease-in-out; z-index: 2000; overflow-y: auto;
         }
+        .mobile #toolbar.open { left: 0; }
+        .mobile button { padding: 12px 16px; font-size: 18px; margin: 10px 0; width: 100%; }
+        .mobile #hamburger-btn { position: fixed; top: 10px; left: 10px; z-index: 3000; display: block; }
+        #hamburger-btn { display: none; }
+        .mobile #footer { flex-direction: column; align-items: center; }
+        .mobile #formatting-tools { display: flex; flex-wrap: wrap; justify-content: center; }
+        .mobile #formatting-tools button { padding: 8px 12px; font-size: 16px; margin: 5px; }
+        .mobile #editor { font-size: 18px; padding: 15px; }
+        .mobile #stats { margin-top: 10px; }
 
         /* Suggestion sidebar */
         #suggestion {
-            background-color: #f0f0f0;
-            border-left: 1px solid #ccc;
-            padding: 10px;
-            display: none;
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 300px;
-            overflow-y: auto;
-            z-index: 1000;
+            background-color: #f0f0f0; border-left: 1px solid #ccc; padding: 10px; display: none; position: fixed; top: 0; right: 0; bottom: 0; width: 300px; overflow-y: auto; z-index: 1000;
         }
-        .dark-mode #suggestion {
-            background-color: #444;
-            color: #ddd;
-            border-left-color: #666;
-        }
-        #suggestion button {
-            margin-top: 5px;
-            display: block;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 500;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            padding: 6px 12px; /* Slightly adjusted for sidebar fit */
-        }
-        .option {
-            margin-bottom: 20px;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .dark-mode .option {
-            border-bottom-color: #666;
-        }
+        .dark-mode #suggestion { background-color: #444; color: #ddd; border-left-color: #666; }
+        #suggestion button { margin-top: 5px; display: block; font-family: 'Roboto', sans-serif; font-weight: 500; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, box-shadow 0.3s ease; padding: 6px 12px; }
+        .option { margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #ddd; }
+        .dark-mode .option { border-bottom-color: #666; }
 
         /* Full screen footer buttons */
-        #fullscreen-footer-controls {
-            display: none;
-        }
-        .fullscreen #fullscreen-footer-controls {
-            display: flex;
-            margin-left: auto;
-        }
-        .fullscreen #fullscreen-footer-controls button {
-            padding: 4px 8px;
-            font-size: 14px;
-        }
+        #fullscreen-footer-controls { display: none; }
+        .fullscreen #fullscreen-footer-controls { display: flex; margin-left: auto; }
+        .fullscreen #fullscreen-footer-controls button { padding: 4px 8px; font-size: 14px; }
 
         /* Auto-hide footer in desktop mode */
-        #footer.hidden {
-            opacity: 0;
-            pointer-events: none;
+        #footer.hidden { opacity: 0; pointer-events: none; }
+        #footer.visible { opacity: 1; pointer-events: auto; }
+        
+        /* --- START OF NEW MOBILE-SPECIFIC STYLES --- */
+        #mobile-top-bar, #mobile-bottom-bar {
+            display: none;
         }
-        #footer.visible {
-            opacity: 1;
-            pointer-events: auto;
+
+        @media (max-width: 768px) {
+            /* Hide all original desktop/mobile controls */
+            #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
+                display: none !important;
+            }
+
+            /* Show and style new mobile bars */
+            #mobile-top-bar, #mobile-bottom-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                position: fixed;
+                left: 0;
+                width: 100%;
+                height: 45px;
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border-color: var(--mobile-border-color, #ccc);
+                z-index: 100;
+                padding: 0 5px;
+                box-sizing: border-box;
+            }
+            .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
+                background-color: #252525;
+                border-color: #444;
+            }
+
+            #mobile-top-bar {
+                top: 0;
+                border-bottom: 1px solid var(--mobile-border-color, #ccc);
+            }
+
+            #mobile-bottom-bar {
+                bottom: 0;
+                border-top: 1px solid var(--mobile-border-color, #ccc);
+                flex-wrap: wrap; /* Allow wrapping if too many buttons */
+                overflow-x: auto;
+            }
+
+            #mobile-top-bar button, #mobile-bottom-bar button {
+                background: none;
+                border: none;
+                color: var(--mobile-btn-color, #000);
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 5px 8px;
+                flex-shrink: 0; /* Prevent buttons from shrinking */
+            }
+             .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
+                color: #ddd;
+            }
+
+            #editor {
+                height: calc(100vh - 90px) !important; /* Full height minus top and bottom bars */
+                margin-top: 45px;
+                padding: 15px !important;
+            }
+
+            /* New Slider Menu for mobile */
+            #mobile-slider-container {
+                position: relative;
+            }
+            #mobile-slider-menu {
+                display: none;
+                position: absolute;
+                top: 40px;
+                right: 0;
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border: 1px solid var(--mobile-border-color, #ccc);
+                border-radius: 4px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 101;
+                width: 150px;
+            }
+            .dark-mode #mobile-slider-menu {
+                 background-color: #333;
+                 border-color: #555;
+            }
+
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                text-align: left;
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            #mobile-slider-menu.show {
+                display: block;
+            }
+
+            /* Focus Mode adjustments for new mobile UI */
+            .focus-mode #mobile-top-bar,
+            .focus-mode #mobile-bottom-bar {
+                display: none;
+            }
+            .focus-mode #editor {
+                height: 100vh !important;
+                margin-top: 0;
+            }
         }
+        /* --- END OF NEW MOBILE-SPECIFIC STYLES --- */
+
     </style>
 </head>
 <body>
+    <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
     <div id="toolbar">
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Clear" onclick="clearText()">C</button>
@@ -306,13 +309,47 @@
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button id="fullscreen-btn" title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
+
+    <div id="mobile-top-bar">
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Clear" onclick="clearText()">C</button>
+        <button title="Toggle Focus Mode" onclick="toggleFocusMode()">F</button>
+        <button title="Undo" onclick="undo()">↶</button>
+        <button title="Redo" onclick="redo()">↷</button>
+        <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
+        <div id="mobile-slider-container">
+            <button onclick="toggleMobileSliderMenu()">☰</button>
+            <div id="mobile-slider-menu">
+                <button onclick="setApiKey()">API Key</button>
+                <button onclick="getAiSuggestion()">AI Suggest</button>
+                <button onclick="getAiProofread()">Proofread</button>
+            </div>
+        </div>
+    </div>
+    <div id="mobile-bottom-bar">
+        <button title="Bold" onclick="formatText('bold')">B</button>
+        <button title="Italic" onclick="formatText('italic')">I</button>
+        <button title="Heading 1" onclick="formatText('heading1')">#</button>
+        <button title="Heading 2" onclick="formatText('heading2')">##</button>
+        <button title="Insert Link" onclick="formatText('link')">Link</button>
+        <button title="Insert Image" onclick="formatText('image')">Img</button>
+        <button title="Numbered List" onclick="formatText('numberedList')">1.</button>
+        <button title="Blockquote" onclick="formatText('quote')">></button>
+        <button title="Code" onclick="formatText('code')">Code</button>
+        <button title="Insert Table" onclick="formatText('table')">Table</button>
+        <button title="Insert Footnote" onclick="formatText('footnote')">Footnote</button>
+    </div>
+    
     <div id="fullscreen-controls">
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
     <div id="editor" contenteditable="true" placeholder="Start writing here..."></div>
     <div id="preview"></div>
-    <div id="suggestion"></div> <!-- Sidebar for AI suggestions and proofreading -->
+    <div id="suggestion"></div>
     <div id="footer">
         <div id="formatting-tools">
             <button title="Bold" onclick="formatText('bold')">B</button>
@@ -338,18 +375,24 @@
     </div>
 
     <script>
+        // --- START: New function for mobile slider menu ---
+        function toggleMobileSliderMenu() {
+            document.getElementById('mobile-slider-menu').classList.toggle('show');
+        }
+        // --- END: New function ---
+
         // Detect if user is on mobile browser
         function isMobile() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             return /android|iPad|iPhone|iPod|windows phone/i.test(userAgent) && !window.MSStream;
         }
 
-        // Apply mobile class if detected
+        // Apply mobile class if detected (for original slider menu)
         if (isMobile()) {
             document.body.classList.add('mobile');
         }
 
-        // Mobile menu toggle
+        // Mobile menu toggle (for original slider menu)
         function toggleMobileMenu() {
             const toolbar = document.getElementById('toolbar');
             toolbar.classList.toggle('open');
@@ -401,18 +444,10 @@
             const text = document.getElementById('editor').innerText;
             let extension;
             switch (choice) {
-                case '1':
-                    extension = 'txt';
-                    break;
-                case '2':
-                    extension = 'pdf';
-                    break;
-                case '3':
-                    extension = 'fountain';
-                    break;
-                case '4':
-                    extension = 'png';
-                    break;
+                case '1': extension = 'txt'; break;
+                case '2': extension = 'pdf'; break;
+                case '3': extension = 'fountain'; break;
+                case '4': extension = 'png'; break;
                 default:
                     alert('Invalid choice. Please type a number from 1 to 4.');
                     return;
@@ -428,10 +463,9 @@
                 URL.revokeObjectURL(url);
             } else if (extension === 'pdf') {
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write('<html><head><title>Print to PDF</title><style>body { font-family: "Courier New", monospace; font-size: 12pt; }</style></head><body><pre>' + text + '</pre></body></html>');
+                printWindow.document.write('<html><head><title>Print to PDF</title><style>body { font-family: "Courier New", monospace; font-size: 12pt; white-space: pre-wrap; }</style></head><body>' + text + '</body></html>');
                 printWindow.document.close();
                 printWindow.print();
-                // Note: After printing, save as PDF from the print dialog.
             } else if (extension === 'png') {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
@@ -444,7 +478,7 @@
                 ctx.font = '12pt Courier New';
                 ctx.fillStyle = 'black';
                 lines.forEach((line, index) => {
-                    ctx.fillText(line, 20, (index + 1) * lineHeight + 20);
+                    ctx.fillText(line, 20, (index * lineHeight) + 30);
                 });
                 const url = canvas.toDataURL('image/png');
                 const a = document.createElement('a');
@@ -452,7 +486,6 @@
                 a.download = 'document.png';
                 a.click();
             }
-            // Also save to localStorage as before
             localStorage.setItem('savedText', text);
         }
 
@@ -476,50 +509,24 @@
         }
 
         function multiMarkdownToHtml(text) {
-            // Basic MultiMarkdown parser (supports core features; not exhaustive)
-            // Headings
-            text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
-            text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
-            text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
-            text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-            text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-            text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-
-            // Bold and Italic
-            text = text.replace(/\*\*(.*)\*\*/gm, '<strong>$1</strong>');
-            text = text.replace(/\*(.*)\*/gm, '<em>$1</em>');
-
-            // Links and Images
-            text = text.replace(/!\[(.*?)\]\((.*?)\)/gm, '<img alt="$1" src="$2" />');
-            text = text.replace(/\[(.*?)\]\((.*?)\)/gm, '<a href="$2">$1</a>');
-
-            // Lists
-            text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>');
-            text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>');
-
-            // Blockquotes
-            text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
-
-            // Code Blocks
-            text = text.replace(/``````/gs, '<pre><code>$1</code></pre>');
-            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
-
-            // Tables (basic support)
-            text = text.replace(/\|(.*?)\|/g, function(match) {
-                return match.replace(/\|/g, '</td><td>').replace(/^<\/td>/, '<tr><td>');
-            });
-            text = text.replace(/<tr><td>(.*?)<\/td><\/tr>/g, '<table><tbody>$&</tbody></table>');
-
-            // Footnotes (basic: [^[note]] becomes <sup>note</sup>)
-            text = text.replace(/\[\^(.+?)\]/g, '<sup id="fn-$1"><a href="#fnref-$1">$1</a></sup>');
-
-            // Horizontal Rule
-            text = text.replace(/^[-*]{3,}/gm, '<hr>');
-
-            // Line breaks
-            text = text.replace(/\n$/gm, '<br />');
-
-            return text;
+             // Basic MultiMarkdown parser
+             text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+             text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+             text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+             text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+             text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+             text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+             text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+             text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+             text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" style="max-width:100%;"/>');
+             text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+             text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
+             text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
+             text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+             text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+             text = text.replace(/^[-*]{3,}/gm, '<hr>');
+             text = text.replace(/\n/g, '<br />');
+             return text;
         }
 
         function toggleDarkMode() {
@@ -569,7 +576,7 @@
                     const text = document.getElementById('editor').innerText;
                     localStorage.setItem('savedText', text);
                     console.log('Auto-saved to localStorage');
-                }, 120000); // 2 minutes = 120000 ms
+                }, 120000);
                 alert('Auto-save enabled (every 2 minutes)');
             } else {
                 clearInterval(autoSaveInterval);
@@ -595,17 +602,13 @@
                 alert('Please set your Gemini API Key first.');
                 return;
             }
-
             const editor = document.getElementById('editor');
             const text = editor.innerText.trim();
             if (!text) {
                 alert('Please enter some text to get suggestions.');
                 return;
             }
-
-            // Get the last sentence or paragraph for context
-            const context = text.split('\n').slice(-1)[0] || text; // Last line as context
-
+            const context = text.split('\n').slice(-1)[0] || text;
             const suggestionDiv = document.getElementById('suggestion');
             suggestionDiv.innerHTML = 'Generating suggestion...';
             suggestionDiv.style.display = 'block';
@@ -613,9 +616,7 @@
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
@@ -624,29 +625,20 @@
                         }]
                     })
                 });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
+                if (!response.ok) throw new Error('API request failed');
                 const data = await response.json();
                 const fullSuggestion = data.candidates[0].content.parts[0].text.trim();
-
-                // Parse the suggestions into individual options
                 const options = fullSuggestion.split(/\*\*Option \d+ \(/).filter(Boolean).map((opt, index) => {
                     const [tonePart, ...textParts] = opt.split('):** ');
                     const tone = tonePart.trim();
                     const suggestionText = textParts.join('):** ').trim();
                     return { number: index + 1, tone, text: suggestionText };
                 });
-
-                // Build HTML for each option
                 let html = '<strong>AI Suggestions:</strong><br>';
                 options.forEach(opt => {
                     html += `<div class="option"><strong>Option ${opt.number} (${opt.tone}):</strong> ${opt.text}<br><button onclick="insertSuggestion('${opt.text.replace(/'/g, "\\'")}')">Insert</button></div>`;
                 });
                 html += '<button onclick="document.getElementById(\'suggestion\').style.display=\'none\'">Close</button>';
-
                 suggestionDiv.innerHTML = html;
             } catch (error) {
                 suggestionDiv.innerHTML = 'Error generating suggestion. Check your API key or try again.';
@@ -659,24 +651,19 @@
                 alert('Please set your Gemini API Key first.');
                 return;
             }
-
             const editor = document.getElementById('editor');
             const text = editor.innerText.trim();
             if (!text) {
                 alert('Please enter some text to proofread.');
                 return;
             }
-
             const suggestionDiv = document.getElementById('suggestion');
             suggestionDiv.innerHTML = 'Proofreading...';
             suggestionDiv.style.display = 'block';
-
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
@@ -685,15 +672,10 @@
                         }]
                     })
                 });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
+                if (!response.ok) throw new Error('API request failed');
                 const data = await response.json();
                 const correctedText = data.candidates[0].content.parts[0].text.trim();
-
-                suggestionDiv.innerHTML = `<strong>Proofread Version:</strong><br><pre style="white-space: pre-wrap;">${correctedText}</pre><br><button onclick="insertProofread('${correctedText.replace(/'/g, "\\'")}')">Insert</button> <button onclick="document.getElementById('suggestion').style.display='none'">Close</button>`;
+                suggestionDiv.innerHTML = `<strong>Proofread Version:</strong><br><div style="white-space: pre-wrap; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">${correctedText}</div><br><button onclick="insertProofread('${correctedText.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">Replace Original</button> <button onclick="document.getElementById('suggestion').style.display='none'">Close</button>`;
             } catch (error) {
                 suggestionDiv.innerHTML = 'Error proofreading. Check your API key or try again.';
             }
@@ -715,86 +697,57 @@
             updateStats();
         }
 
-        // Formatting functions
         function formatText(type) {
-            const editor = document.getElementById('editor');
-            const selection = window.getSelection();
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                const selectedText = range.toString();
-                let formattedText = selectedText;
+             const editor = document.getElementById('editor');
+             const selection = window.getSelection();
+             if (!selection.rangeCount) return;
 
-                switch (type) {
-                    case 'bold':
-                        formattedText = `**${selectedText}**`;
-                        break;
-                    case 'italic':
-                        formattedText = `*${selectedText}*`;
-                        break;
-                    case 'heading1':
-                        formattedText = `# ${selectedText}`;
-                        break;
-                    case 'heading2':
-                        formattedText = `## ${selectedText}`;
-                        break;
-                    case 'link':
-                        const url = prompt('Enter URL:') || 'https://example.com';
-                        formattedText = `[${selectedText}](${url})`;
-                        break;
-                    case 'image':
-                        const imgUrl = prompt('Enter image URL:') || 'https://example.com/image.jpg';
-                        formattedText = `![${selectedText}](${imgUrl})`;
-                        break;
-                    case 'list':
-                        formattedText = `- ${selectedText}`;
-                        break;
-                    case 'numberedList':
-                        formattedText = `1. ${selectedText}`;
-                        break;
-                    case 'quote':
-                        formattedText = `> ${selectedText}`;
-                        break;
-                    case 'code':
-                        formattedText = `\`${selectedText}\``;
-                        break;
-                    case 'table':
-                        formattedText = '| Header1 | Header2 |\n|---------|---------|\n| Cell1   | Cell2   |';
-                        break;
-                    case 'footnote':
-                        const note = prompt('Enter footnote text:') || 'note';
-                        formattedText = `${selectedText}[^${note}]`;
-                        break;
-                }
+             const range = selection.getRangeAt(0);
+             const selectedText = range.toString();
+             let replacementNode;
 
-                range.deleteContents();
-                range.insertNode(document.createTextNode(formattedText));
-                saveToHistory();
-                updateStats();
-            }
+             switch (type) {
+                 case 'bold': formattedText = `**${selectedText}**`; break;
+                 case 'italic': formattedText = `*${selectedText}*`; break;
+                 case 'heading1': formattedText = `# ${selectedText}`; break;
+                 case 'heading2': formattedText = `## ${selectedText}`; break;
+                 case 'link': const url = prompt('Enter URL:') || '#'; formattedText = `[${selectedText}](${url})`; break;
+                 case 'image': const imgUrl = prompt('Enter image URL:'); formattedText = `![${selectedText}](${imgUrl})`; break;
+                 case 'list': formattedText = `- ${selectedText}`; break;
+                 case 'numberedList': formattedText = `1. ${selectedText}`; break;
+                 case 'quote': formattedText = `> ${selectedText}`; break;
+                 case 'code': formattedText = `\`${selectedText}\``; break;
+                 case 'table': formattedText = '| Header 1 | Header 2 |\n|---|---|\n| Cell 1 | Cell 2 |'; break;
+                 case 'footnote': const note = prompt('Enter footnote ID:'); formattedText = `${selectedText}[^${note}]`; break;
+                 default: formattedText = selectedText;
+             }
+
+             range.deleteContents();
+             range.insertNode(document.createTextNode(formattedText));
+             
+             saveToHistory();
+             updateStats();
         }
 
-        // Handle fullscreen change
         document.addEventListener('fullscreenchange', () => {
             const isFullscreen = !!document.fullscreenElement;
             document.body.classList.toggle('fullscreen', isFullscreen);
             document.getElementById('fullscreen-footer-controls').style.display = isFullscreen ? 'flex' : 'none';
         });
 
-        // Auto-hide footer in desktop mode
         if (!isMobile()) {
             const footer = document.getElementById('footer');
-            footer.classList.add('visible'); // Initial state
-
+            footer.classList.add('visible');
             document.addEventListener('mousemove', (event) => {
                 clearTimeout(footerTimeout);
-                if (event.clientY > window.innerHeight - 100) { // Near bottom (100px threshold)
+                if (event.clientY > window.innerHeight - 100) {
                     footer.classList.remove('hidden');
                     footer.classList.add('visible');
                 } else {
                     footerTimeout = setTimeout(() => {
                         footer.classList.remove('visible');
                         footer.classList.add('hidden');
-                    }, 2000); // Hide after 2 seconds of no activity near bottom
+                    }, 2000);
                 }
             });
         }
@@ -804,17 +757,9 @@
             updateStats();
         });
 
-        // Initial save to history
         saveToHistory();
         updateStats();
 
-        // Add event listeners for formatting tools
-        const formattingButtons = document.querySelectorAll('#formatting-tools button');
-        formattingButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                formatText(button.getAttribute('title').toLowerCase().replace(' ', ''));
-            });
-        });
     </script>
 </body>
 </html>
