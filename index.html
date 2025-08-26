@@ -61,6 +61,10 @@
                 display: flex;
             }
         }
+        .dragging {
+            opacity: 0.5;
+            background: #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
@@ -165,7 +169,13 @@
         </div>
 
         <!-- Script View (Preview) -->
-        <div id="script-view" class="h-full flex-col hidden">
+        <div id="script-view" class="h-full flex-col hidden relative">
+             <!-- Scene Navigator Button -->
+            <button id="scene-navigator-btn" class="absolute bottom-24 right-8 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-lg z-20 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+            </button>
             <div class="flex-grow p-4 overflow-hidden">
                 <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
                     <!-- Formatted screenplay will be injected here -->
@@ -181,6 +191,17 @@
             </div>
         </div>
     </main>
+
+    <!-- Scene Navigator Panel -->
+    <div id="scene-navigator-panel" class="absolute top-0 right-0 h-full w-80 bg-gray-800 shadow-lg z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-4 border-b border-gray-700">
+            <h2 class="text-xl font-bold text-white">Scene Navigator</h2>
+            <p class="text-sm text-gray-400">Drag to reorder scenes</p>
+        </div>
+        <ul id="scene-list" class="flex-grow overflow-y-auto p-2">
+            <!-- Scene items will be injected here -->
+        </ul>
+    </div>
 
     <!-- Info Modal -->
     <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
@@ -266,6 +287,9 @@
         const authorInput = document.getElementById('author-input');
         const sceneNoBtn = document.getElementById('scene-no-btn');
         const sceneNoIndicator = document.getElementById('scene-no-indicator');
+        const sceneNavigatorBtn = document.getElementById('scene-navigator-btn');
+        const sceneNavigatorPanel = document.getElementById('scene-navigator-panel');
+        const sceneList = document.getElementById('scene-list');
 
         // --- Global State ---
         let scriptTitle = "TITLE";
@@ -819,6 +843,90 @@ Type screenplay here & click SCRIPT button to format it...`;
             sceneNoIndicator.classList.toggle('bg-green-500', showSceneNumbers);
             sceneNoIndicator.classList.toggle('bg-gray-500', !showSceneNumbers);
         });
+
+        // Scene Navigator Logic
+        sceneNavigatorBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            populateSceneNavigator();
+            sceneNavigatorPanel.classList.toggle('translate-x-full');
+        });
+
+        function populateSceneNavigator() {
+            sceneList.innerHTML = '';
+            const tokens = tokenizeFountain(fountainInput.value);
+            let sceneIndex = 0;
+            tokens.forEach((token, index) => {
+                if (token.type === 'sceneHeading') {
+                    const li = document.createElement('li');
+                    li.textContent = token.content;
+                    li.className = 'p-2 text-gray-300 bg-gray-700 rounded-md mb-2 cursor-grab';
+                    li.draggable = true;
+                    li.dataset.sceneIndex = sceneIndex++;
+                    li.dataset.tokenIndex = index;
+                    sceneList.appendChild(li);
+                }
+            });
+        }
+        
+        let draggedItem = null;
+
+        sceneList.addEventListener('dragstart', e => {
+            draggedItem = e.target;
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        });
+
+        sceneList.addEventListener('dragend', e => {
+            e.target.classList.remove('dragging');
+        });
+
+        sceneList.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sceneList, e.clientY);
+            if (afterElement == null) {
+                sceneList.appendChild(draggedItem);
+            } else {
+                sceneList.insertBefore(draggedItem, afterElement);
+            }
+        });
+
+        sceneList.addEventListener('drop', () => {
+            reorderScript();
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function reorderScript() {
+            const originalLines = fountainInput.value.split('\n');
+            const sceneBlocks = [];
+            let currentBlock = [];
+            
+            originalLines.forEach(line => {
+                if ((line.trim().toUpperCase().startsWith('INT.') || line.trim().toUpperCase().startsWith('EXT.')) && currentBlock.length > 0) {
+                    sceneBlocks.push(currentBlock.join('\n'));
+                    currentBlock = [line];
+                } else {
+                    currentBlock.push(line);
+                }
+            });
+            sceneBlocks.push(currentBlock.join('\n'));
+            
+            const newOrderIndices = [...sceneList.querySelectorAll('li')].map(li => parseInt(li.dataset.sceneIndex));
+            const reorderedBlocks = newOrderIndices.map(index => sceneBlocks[index]);
+
+            fountainInput.value = reorderedBlocks.join('\n');
+            history.add(fountainInput.value);
+        }
 
         // --- Initialization ---
         setPlaceholder(); // Set the initial placeholder
