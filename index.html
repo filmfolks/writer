@@ -3,8 +3,804 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Text Writer/Editor with AI Suggestions</title>
+    <title>Fountain Script Pro</title>
+    <!-- Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a classic screenplay look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- jsPDF for PDF export functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Using your provided CSS classes for formatting, adapted for the UI */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #screenplay-output {
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .title-page { text-align: center; margin-bottom: 0; padding-top: 2rem; }
+        .title-page h1 { font-weight: bold; margin-bottom: 0.25rem; text-transform: uppercase; }
+        .scene-heading { font-weight: bold; text-transform: uppercase; }
+        .action { /* No margin needed, spacing controlled by <br> */ }
+        .character { text-transform: uppercase; margin-left: 37%; }
+        .dialogue { margin-left: 25%; margin-right: 15%; }
+        .parenthetical { margin-left: 30%; }
+        .transition { text-align: right; text-transform: uppercase; font-weight: bold; }
+
+        /* Custom scrollbar for a cleaner look */
+        textarea::-webkit-scrollbar, #screenplay-output::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #1f2937; }
+        textarea::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
+        #screenplay-output::-webkit-scrollbar-track { background: #e5e7eb; }
+        #screenplay-output::-webkit-scrollbar-thumb { background-color: #9ca3af; }
+        
+        #info-modal { transition: opacity 0.3s ease; }
+        .main-content { height: calc(100vh - 50px); }
+
+        /* Rule to hide elements in fullscreen */
+        :fullscreen #main-toolbar, :fullscreen #main-header {
+            display: none;
+        }
+        :fullscreen .main-content {
+            height: 100vh;
+        }
+        :fullscreen #fullscreen-btn-inline {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
+
+    <!-- Header Section -->
+    <header id="main-header" class="text-center py-2 border-b border-gray-700 relative flex items-center justify-between px-4">
+        <!-- Hamburger Menu Button -->
+        <button id="hamburger-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+        </button>
+        
+           <h1 class="text-2xl font-bold text-white absolute left-1/2 -translate-x-1/2" style="font-family: 'Courier Prime', monospace;">
+  ToscripT
+</h1>
+
+        <!-- Fullscreen Toggle Button (Header) -->
+        <button id="fullscreen-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Toggle Fullscreen">
+            <svg id="fullscreen-open-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+            </svg>
+        </button>
+    </header>
     
+    <!-- Hamburger Menu Panel -->
+    <div id="menu-panel" class="absolute top-14 left-0 w-52 bg-gray-800 shadow-lg z-40 transform -translate-x-full transition-transform duration-300 ease-in-out rounded-br-lg">
+        <div class="p-4">
+            <nav class="flex flex-col space-y-2">
+                <a href="#" id="new-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">New Project</a>
+                <a href="#" id="open-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Open...</a>
+                <a href="#" id="title-page-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Title Page</a>
+                <div class="relative">
+                    <a href="#" id="save-menu-btn" class="w-full text-left text-gray-300 hover:bg-gray-700 p-2 rounded-md">Save As...</a>
+                    <div id="save-menu" class="mt-1 ml-4 hidden">
+                        <a href="#" id="save-fountain-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.fountain</a>
+                        <a href="#" id="save-fdx-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.fdx</a>
+                        <a href="#" id="save-pdf-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.pdf</a>
+                    </div>
+                </div>
+                <a href="#" id="share-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Share</a>
+                <a href="#" id="scene-no-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md flex justify-between items-center">
+                    <span>Scene Nos.</span>
+                    <span id="scene-no-indicator" class="w-4 h-4 rounded-full bg-green-500"></span>
+                </a>
+                <a href="#" id="info-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Info</a>
+            </nav>
+        </div>
+    </div>
+
+
+    <!-- Main Content Area -->
+    <main class="main-content flex-grow overflow-hidden">
+        <!-- Write View (Editor) -->
+        <div id="write-view" class="h-full flex flex-col">
+            <!-- Toolbar -->
+            <div id="main-toolbar" class="bg-gray-800 p-2 flex items-center justify-center flex-wrap gap-2 shadow-md flex-shrink-0">
+                <button id="undo-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Undo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>
+                </button>
+                <button id="redo-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Redo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+                </button>
+                <button id="zoom-out-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom Out">-</button>
+                <button id="zoom-in-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom In">+</button>
+            </div>
+            <!-- Textarea and Side Toolbar Wrapper -->
+            <div class="flex-grow p-4 flex gap-2 overflow-hidden">
+                 <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                 <!-- Side Toolbar -->
+                 <div class="flex flex-col gap-2 flex-shrink-0">
+                    <button id="fullscreen-btn-inline" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" title="Exit Fullscreen">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-fullscreen-exit" viewBox="0 0 16 16">
+                            <path d="M5.5 0a.5.5 0 0 1 .5.5v4A.5.5 0 0 1 5 5h-4a.5.5 0 0 1 0-1h3.5V.5a.5.5 0 0 1 .5-.5zm-5 5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V6.5H.5a.5.5 0 0 1-.5-.5zm10.5 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-3.5V15.5a.5.5 0 0 1-1 0v-4zM11 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v3.5a.5.5 0 0 1-1 0V6.5h-3a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="int" title="Insert INT.">I</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="ext" title="Insert EXT.">E</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="day" title="Insert DAY">D</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="night" title="Insert NIGHT">N</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
+                 </div>
+            </div>
+             <!-- Action Button Area -->
+            <div class="p-4 flex-shrink-0">
+                <!-- Ad Banner Placeholder -->
+                <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
+                    Ad Banner Space
+                </div>
+                <button id="show-script-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO SCRIPT</button>
+            </div>
+        </div>
+
+        <!-- Script View (Preview) -->
+        <div id="script-view" class="h-full flex-col hidden">
+            <div class="flex-grow p-4 overflow-hidden">
+                <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
+                    <!-- Formatted screenplay will be injected here -->
+                </div>
+            </div>
+             <!-- Action Button Area -->
+            <div class="p-4 flex-shrink-0">
+                <!-- Ad Banner Placeholder -->
+                <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
+                    Ad Banner Space
+                </div>
+                <button id="show-write-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO WRITE</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6 relative overflow-y-auto max-h-full">
+            <button id="close-info-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold mb-4 text-white">Info & Help</h2>
+            <h3 class="text-xl font-semibold mt-4 mb-2 text-white">Fountain Syntax</h3>
+            <ul class="list-disc list-inside text-gray-300 space-y-1">
+                <li><strong class="text-white">Scene Heading:</strong> Line starts with `INT.` or `EXT.`.</li>
+                <li><strong class="text-white">Character:</strong> Any line in all uppercase.</li>
+                <li><strong class="text-white">Dialogue:</strong> Any text following a Character.</li>
+                <li><strong class="text-white">Parenthetical:</strong> Text inside `(parentheses)` below a Character.</li>
+                <li><strong class="text-white">Transition:</strong> Line ends with `TO:` or is `FADE OUT.` etc.</li>
+            </ul>
+            <h3 class="text-xl font-semibold mt-6 mb-2 text-white">Button Guide</h3>
+            <ul class="list-disc list-inside text-gray-300 space-y-1">
+                <li><strong class="text-white">C:</strong> Toggles selected text or current line between UPPERCASE and lowercase.</li>
+                <li><strong class="text-white">():</strong> Wraps selected text in parentheses.</li>
+                <li><strong class="text-white">I / E:</strong> Inserts `INT.` or `EXT.` for scene headings.</li>
+                <li><strong class="text-white">D / N:</strong> Appends ` - DAY` or ` - NIGHT` to the current line.</li>
+                <li><strong class="text-white">T:</strong> Inserts and cycles through transitions (`CUT TO:`, `FADE IN:`, etc.).</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Title Page Modal -->
+    <div id="title-page-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+             <button id="close-title-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold mb-4 text-white">Title Page</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="title-input" class="block text-sm font-medium text-gray-300">Title</label>
+                    <input type="text" id="title-input" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                 <div>
+                    <label for="author-input" class="block text-sm font-medium text-gray-300">Author</label>
+                    <input type="text" id="author-input" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+            <div class="mt-6">
+                 <button id="save-title-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for opening files -->
+    <input type="file" id="file-input" class="hidden" accept=".fountain,.txt">
+
+    <script>
+        // --- DOM Element References ---
+        const fountainInput = document.getElementById('fountain-input');
+        const screenplayOutput = document.getElementById('screenplay-output');
+        const newBtn = document.getElementById('new-btn');
+        const openBtn = document.getElementById('open-btn');
+        const fileInput = document.getElementById('file-input');
+        const saveMenuBtn = document.getElementById('save-menu-btn');
+        const saveMenu = document.getElementById('save-menu');
+        const saveFountainBtn = document.getElementById('save-fountain-btn');
+        const saveFdxBtn = document.getElementById('save-fdx-btn');
+        const savePdfBtn = document.getElementById('save-pdf-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const infoBtn = document.getElementById('info-btn');
+        const infoModal = document.getElementById('info-modal');
+        const closeModalBtn = document.getElementById('close-info-modal-btn');
+        const writeView = document.getElementById('write-view');
+        const scriptView = document.getElementById('script-view');
+        const showScriptBtn = document.getElementById('show-script-btn');
+        const showWriteBtn = document.getElementById('show-write-btn');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const fullscreenBtnInline = document.getElementById('fullscreen-btn-inline');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const menuPanel = document.getElementById('menu-panel');
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        const titlePageBtn = document.getElementById('title-page-btn');
+        const titlePageModal = document.getElementById('title-page-modal');
+        const closeTitleModalBtn = document.getElementById('close-title-modal-btn');
+        const saveTitleBtn = document.getElementById('save-title-btn');
+        const titleInput = document.getElementById('title-input');
+        const authorInput = document.getElementById('author-input');
+        const sceneNoBtn = document.getElementById('scene-no-btn');
+        const sceneNoIndicator = document.getElementById('scene-no-indicator');
+
+        // --- Global State ---
+        let scriptTitle = "TITLE";
+        let scriptAuthor = "written by your name";
+        let showSceneNumbers = true;
+
+        // --- Placeholder Logic ---
+        const placeholderText = `Sample Format...
+        
+INT. ROOM – DAY
+Fingers race across a glowing phone screen.
+SANTHOSH
+(focused)
+Keep going, this is worth it.
+FADE OUT:
+
+Type screenplay here & click SCRIPT button to format it...`;
+
+        function setPlaceholder() {
+            if (fountainInput.value === '') {
+                fountainInput.value = placeholderText;
+                fountainInput.classList.add('text-gray-500', 'italic');
+            }
+        }
+
+        function clearPlaceholder() {
+            if (fountainInput.value === placeholderText) {
+                fountainInput.value = '';
+                fountainInput.classList.remove('text-gray-500', 'italic');
+            }
+        }
+
+        fountainInput.addEventListener('focus', clearPlaceholder);
+        fountainInput.addEventListener('blur', setPlaceholder);
+
+
+        // --- Undo/Redo Manager ---
+        const history = {
+            stack: [""],
+            currentIndex: 0,
+            add(value) {
+                if (value === placeholderText || value === this.stack[this.currentIndex]) return;
+                this.stack = this.stack.slice(0, this.currentIndex + 1);
+                this.stack.push(value);
+                this.currentIndex++;
+                this.updateButtons();
+            },
+            undo() { if (this.canUndo()) { this.currentIndex--; this.updateInput(); } },
+            redo() { if (this.canRedo()) { this.currentIndex++; this.updateInput(); } },
+            canUndo: () => history.currentIndex > 0,
+            canRedo: () => history.currentIndex < history.stack.length - 1,
+            updateInput() {
+                fountainInput.value = this.stack[this.currentIndex] || '';
+                if(fountainInput.value === ''){
+                    setPlaceholder();
+                } else {
+                    clearPlaceholder();
+                }
+                this.updateButtons();
+            },
+            updateButtons() {
+                undoBtn.disabled = !this.canUndo();
+                redoBtn.disabled = !this.canRedo();
+            }
+        };
+
+        // --- PARSING ENGINE (TOKENIZER) ---
+        function tokenizeFountain(input) {
+            if (input === placeholderText) {
+                return [];
+            }
+            const lines = input.split('\n');
+            const tokens = [];
+            let inDialogue = false;
+
+            for(let i=0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                const nextLine = (i + 1 < lines.length) ? lines[i+1].trim() : null;
+
+                if (!line) {
+                    tokens.push({ type: 'empty' });
+                    inDialogue = false;
+                    continue;
+                }
+
+                // Scene headings
+                if (line.toUpperCase().startsWith('INT.') || line.toUpperCase().startsWith('EXT.')) {
+                    tokens.push({ type: 'sceneHeading', content: line.toUpperCase() });
+                    inDialogue = false;
+                    continue;
+                }
+
+                // Transitions
+                if (line.toUpperCase().endsWith('TO:') || line.toUpperCase() === 'FADE OUT.' || line.toUpperCase() === 'FADE IN:' || line.toUpperCase() === 'FADE TO BLACK:') {
+                    tokens.push({ type: 'transition', content: line.toUpperCase() });
+                    inDialogue = false;
+                    continue;
+                }
+
+                // Character (is uppercase and followed by a non-empty line)
+                if (line === line.toUpperCase() && !line.startsWith('!') && line.length > 0 && nextLine) {
+                    tokens.push({ type: 'character', content: line });
+                    inDialogue = true;
+                    continue;
+                }
+
+                // Parenthetical
+                if (inDialogue && line.startsWith('(')) {
+                    tokens.push({ type: 'parenthetical', content: line });
+                    continue;
+                }
+
+                // Dialogue
+                if (inDialogue) {
+                    tokens.push({ type: 'dialogue', content: line });
+                    continue;
+                }
+
+                // Action
+                tokens.push({ type: 'action', content: line });
+            }
+
+            return tokens;
+        }
+
+        function renderPreview() {
+            const rawText = fountainInput.value;
+            const tokens = tokenizeFountain(rawText);
+            let html = '';
+            let sceneNumber = 1;
+
+            if (scriptTitle || scriptAuthor) {
+                html += `<div class="title-page">`;
+                if (scriptTitle) html += `<h1>${scriptTitle}</h1>`;
+                if (scriptAuthor) html += `<h2>${scriptAuthor}</h2>`;
+                html += `</div>`;
+            }
+
+            tokens.forEach(token => {
+                if (token.type === 'sceneHeading') {
+                    const sceneText = token.content;
+                    const numberedLine = showSceneNumbers ? `<div class="flex justify-between"><span>${sceneText}</span><span>${sceneNumber}</span></div>` : sceneText;
+                    html += `<div class="scene-heading">${numberedLine}</div>`;
+                    sceneNumber++;
+                } else if (token.type === 'empty') {
+                    html += '<br>';
+                }
+                else {
+                    html += `<div class="${token.type}">${token.content}</div>`;
+                }
+            });
+            screenplayOutput.innerHTML = html;
+        }
+
+        // --- File & Action Handlers ---
+        function downloadFile(filename, content, mimeType) {
+            const element = document.createElement('a');
+            element.setAttribute('href', `data:${mimeType};charset=utf-8,` + encodeURIComponent(content));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+        
+        function createFdxContent(fountainText) {
+            const tokens = tokenizeFountain(fountainText);
+            let fdxContent = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><FinalDraft DocumentType="Script" Template="No" Version="1"><Content>`;
+            tokens.forEach(token => {
+                let type = 'Action';
+                if (token.type === 'sceneHeading') type = 'Scene Heading';
+                if (token.type === 'character') type = 'Character';
+                if (token.type === 'dialogue') type = 'Dialogue';
+                if (token.type === 'parenthetical') type = 'Parenthetical';
+                if (token.type === 'transition') type = 'Transition';
+                fdxContent += `<Paragraph Type="${type}"><Text>${token.content}</Text></Paragraph>`;
+            });
+            fdxContent += `</Content></FinalDraft>`;
+            return fdxContent;
+        }
+
+        // --- Textarea Manipulation Helpers ---
+        let lastTransition = { text: null, start: -1, end: -1 };
+        const transitions = ['CUT TO:', 'FADE IN:', 'FADE OUT:', 'FADE TO BLACK:'];
+
+        function cycleTransition(textarea) {
+            clearPlaceholder();
+            const currentPos = textarea.selectionStart;
+
+            if (lastTransition.text && currentPos === lastTransition.end && textarea.value.substring(lastTransition.start, lastTransition.end) === lastTransition.text) {
+                const currentIndex = transitions.indexOf(lastTransition.text);
+                const nextIndex = (currentIndex + 1) % transitions.length;
+                const newText = transitions[nextIndex];
+
+                textarea.value = textarea.value.substring(0, lastTransition.start) + newText + textarea.value.substring(lastTransition.end);
+                textarea.selectionStart = textarea.selectionEnd = lastTransition.start + newText.length;
+
+                lastTransition.text = newText;
+                lastTransition.end = lastTransition.start + newText.length;
+            } else {
+                const newText = transitions[0];
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + newText.length;
+                
+                lastTransition.start = start;
+                lastTransition.end = start + newText.length;
+                lastTransition.text = newText;
+            }
+            textarea.focus();
+            history.add(textarea.value);
+        }
+
+        function insertAtCursor(textarea, text) {
+            clearPlaceholder();
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + text.length;
+            textarea.focus();
+            history.add(textarea.value); // Update history
+        }
+
+        function wrapWithParens(textarea) {
+            clearPlaceholder();
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            const newText = `(${selectedText})`;
+            textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+            textarea.selectionStart = start + 1;
+            textarea.selectionEnd = end + 1;
+            textarea.focus();
+            history.add(textarea.value); // Update history
+        }
+
+        function toggleCase(textarea) {
+            clearPlaceholder();
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            let newText = '';
+            let targetText = '';
+
+            if (start === end) { // No selection, toggle the whole line
+                let lineStart = textarea.value.lastIndexOf('\n', start - 1) + 1;
+                let lineEnd = textarea.value.indexOf('\n', start);
+                if (lineEnd === -1) lineEnd = textarea.value.length;
+                
+                targetText = textarea.value.substring(lineStart, lineEnd);
+                newText = (targetText === targetText.toUpperCase()) ? targetText.toLowerCase() : targetText.toUpperCase();
+                textarea.value = textarea.value.substring(0, lineStart) + newText + textarea.value.substring(lineEnd);
+                textarea.selectionStart = start;
+                textarea.selectionEnd = end;
+
+            } else { // Toggle selection
+                targetText = textarea.value.substring(start, end);
+                newText = (targetText === targetText.toUpperCase()) ? targetText.toLowerCase() : targetText.toUpperCase();
+                textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+                textarea.selectionStart = start;
+                textarea.selectionEnd = start + newText.length;
+            }
+            textarea.focus();
+            history.add(textarea.value); // Update history
+        }
+
+        // --- Event Listeners ---
+        // Menu Buttons
+        newBtn.addEventListener('click', () => {
+            if (confirm('Start a new project? Unsaved changes will be lost.')) {
+                scriptTitle = '';
+                scriptAuthor = '';
+                screenplayOutput.innerHTML = '';
+                setPlaceholder(); // Use the new placeholder function
+                history.stack = ['']; // Reset history to a truly empty state
+                history.currentIndex = 0;
+                history.updateButtons();
+                menuPanel.classList.add('-translate-x-full');
+            }
+        });
+
+        openBtn.addEventListener('click', () => {
+            fileInput.click();
+            menuPanel.classList.add('-translate-x-full');
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                fountainInput.value = content;
+                clearPlaceholder();
+                history.stack = ['', content];
+                history.currentIndex = 1;
+                history.updateButtons();
+            };
+            reader.readAsText(file);
+            fileInput.value = ''; // Reset for next open
+        });
+
+        saveMenuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            saveMenu.classList.toggle('hidden');
+        });
+        saveFountainBtn.addEventListener('click', (e) => { 
+            e.preventDefault();
+            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+            downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain'); 
+        });
+        saveFdxBtn.addEventListener('click', (e) => { 
+            e.preventDefault();
+            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+            downloadFile(`${filename}.fdx`, createFdxContent(fountainInput.value), 'application/xml'); 
+        });
+        shareBtn.addEventListener('click', () => {
+             if (navigator.share) {
+                navigator.share({
+                    title: scriptTitle || 'My Screenplay',
+                    text: fountainInput.value,
+                }).catch((error) => {
+                    console.error('Share failed:', error);
+                    copyToClipboardFallback();
+                });
+            } else {
+                copyToClipboardFallback();
+            }
+        });
+
+        function copyToClipboardFallback() {
+            navigator.clipboard.writeText(fountainInput.value).then(() => {
+                const originalText = shareBtn.textContent;
+                shareBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    shareBtn.textContent = 'Share';
+                }, 2000);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        infoBtn.addEventListener('click', () => {
+            infoModal.classList.remove('hidden');
+            menuPanel.classList.add('-translate-x-full');
+        });
+
+        // Toolbar Action Buttons
+        document.querySelectorAll('.action-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                switch(action) {
+                    case 'caps': toggleCase(fountainInput); break;
+                    case 'parens': wrapWithParens(fountainInput); break;
+                    case 'int': insertAtCursor(fountainInput, 'INT. '); break;
+                    case 'ext': insertAtCursor(fountainInput, 'EXT. '); break;
+                    case 'day': insertAtCursor(fountainInput, ' - DAY'); break;
+                    case 'night': insertAtCursor(fountainInput, ' - NIGHT'); break;
+                    case 'transition': cycleTransition(fountainInput); break;
+                }
+            });
+        });
+
+        // PDF Save - REWRITTEN FOR ACCURACY
+        savePdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'pt', format: 'letter' }); // 8.5x11 inches = 612x792 points
+
+            const SCREENPLAY_SETTINGS = {
+                font: 'Courier',
+                fontSizePt: 12,
+                lineHeightPt: 12, // Single spacing
+            };
+
+            const FORMATTING = {
+                sceneHeading: { leftMarginIn: 1.5, rightMarginIn: 1.0, lineSpacingBefore: 1, lineSpacingAfter: 1 },
+                action: { leftMarginIn: 1.5, rightMarginIn: 1.0, lineSpacingBefore: 0, lineSpacingAfter: 0 },
+                character: { leftMarginIn: 3.7, lineSpacingBefore: 1, lineSpacingAfter: 0 },
+                parenthetical: { leftMarginIn: 3.1, lineSpacingBefore: 0, lineSpacingAfter: 0 },
+                dialogue: { leftMarginIn: 2.5, rightMarginIn: 2.5, lineSpacingBefore: 0, lineSpacingAfter: 0 },
+                transition: { leftMarginIn: 1.5, rightMarginIn: 1.0, align: 'right', lineSpacingBefore: 1, lineSpacingAfter: 1 },
+                empty: { lineSpacingBefore: 1, lineSpacingAfter: 0}
+            };
+
+            const margins = { top: 72, bottom: 72, left: 108, right: 72 };
+            const pageHeight = doc.internal.pageSize.getHeight();
+            let cursorY = margins.top;
+
+            doc.setFont(SCREENPLAY_SETTINGS.font, 'normal');
+            doc.setFontSize(SCREENPLAY_SETTINGS.fontSizePt);
+
+            const checkPageBreak = (neededHeight) => {
+                if (cursorY + neededHeight > pageHeight - margins.bottom) {
+                    doc.addPage();
+                    cursorY = margins.top;
+                }
+            };
+
+            // 1. Render Title Page
+            if (scriptTitle || scriptAuthor) {
+                const titleY = pageHeight / 3;
+                if (scriptTitle) {
+                    doc.text(scriptTitle.toUpperCase(), doc.internal.pageSize.getWidth() / 2, titleY, { align: 'center' });
+                }
+                if (scriptAuthor) {
+                    doc.text("Written by", doc.internal.pageSize.getWidth() / 2, titleY + 40, { align: 'center' });
+                    doc.text(scriptAuthor, doc.internal.pageSize.getWidth() / 2, titleY + 60, { align: 'center' });
+                }
+                doc.addPage();
+            }
+
+            // 2. Render Script Content
+            const tokens = tokenizeFountain(fountainInput.value);
+            let sceneNumber = 1;
+
+            tokens.forEach(token => {
+                const config = FORMATTING[token.type];
+                if (!config) return;
+
+                cursorY += config.lineSpacingBefore * SCREENPLAY_SETTINGS.lineHeightPt;
+                checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
+
+                const leftMargin = config.leftMarginIn * 72;
+                const rightMargin = config.rightMarginIn * 72;
+                const availableWidth = doc.internal.pageSize.getWidth() - leftMargin - rightMargin;
+                
+                let textLines = doc.splitTextToSize(token.content || '', availableWidth);
+                
+                if (token.type === 'sceneHeading' && showSceneNumbers) {
+                    const sceneNumStr = `${sceneNumber}.`;
+                    const sceneText = token.content;
+                    checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
+                    doc.text(sceneNumStr, margins.left, cursorY);
+                    doc.text(sceneText, margins.left + 30, cursorY);
+                    doc.text(sceneNumStr, doc.internal.pageSize.getWidth() - margins.right, cursorY, { align: 'right' });
+                    cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
+                    sceneNumber++;
+                } else {
+                     textLines.forEach(line => {
+                        checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
+                        let xPos = leftMargin;
+                        if(config.align === 'right') {
+                           xPos = doc.internal.pageSize.getWidth() - rightMargin;
+                        }
+                        doc.text(line, xPos, cursorY, { align: config.align || 'left' });
+                        cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
+                    });
+                }
+                
+                cursorY += config.lineSpacingAfter * SCREENPLAY_SETTINGS.lineHeightPt;
+            });
+
+            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+            doc.save(`${filename}.pdf`);
+        });
+
+        let inputTimeout;
+        fountainInput.addEventListener('input', () => {
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => history.add(fountainInput.value), 300); // Debounce for performance
+        });
+
+        undoBtn.addEventListener('click', () => history.undo());
+        redoBtn.addEventListener('click', () => history.redo());
+        
+        closeModalBtn.addEventListener('click', () => infoModal.classList.add('hidden'));
+        
+        // View Switching Logic
+        showScriptBtn.addEventListener('click', () => {
+            renderPreview();
+            writeView.classList.add('hidden');
+            scriptView.classList.add('flex');
+            scriptView.classList.remove('hidden');
+        });
+
+        showWriteBtn.addEventListener('click', () => {
+            scriptView.classList.add('hidden');
+            scriptView.classList.remove('flex');
+            writeView.classList.remove('hidden');
+        });
+
+        // Hamburger Menu Logic
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menuPanel.classList.toggle('-translate-x-full');
+        });
+        document.addEventListener('click', (e) => {
+            if (!menuPanel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                 menuPanel.classList.add('-translate-x-full');
+            }
+        });
+
+        // Fullscreen Logic
+        const toggleFullscreen = () => {
+             if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        };
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        fullscreenBtnInline.addEventListener('click', toggleFullscreen);
+
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFullscreen = !!document.fullscreenElement;
+            fullscreenBtn.classList.toggle('hidden', isFullscreen); // Hide header button
+        });
+        
+        // Zoom Logic
+        let currentFontSize = 16; // Initial font size in pixels
+        const updateFontSize = () => {
+            fountainInput.style.fontSize = `${currentFontSize}px`;
+        };
+        zoomInBtn.addEventListener('click', () => {
+            currentFontSize += 2;
+            updateFontSize();
+        });
+        zoomOutBtn.addEventListener('click', () => {
+            currentFontSize = Math.max(8, currentFontSize - 2); // Minimum font size of 8px
+            updateFontSize();
+        });
+        
+        // Title Page Modal Logic
+        titlePageBtn.addEventListener('click', () => {
+            titleInput.value = scriptTitle;
+            authorInput.value = scriptAuthor;
+            titlePageModal.classList.remove('hidden');
+            menuPanel.classList.add('-translate-x-full');
+        });
+        closeTitleModalBtn.addEventListener('click', () => titlePageModal.classList.add('hidden'));
+        saveTitleBtn.addEventListener('click', () => {
+            scriptTitle = titleInput.value;
+            scriptAuthor = authorInput.value;
+            titlePageModal.classList.add('hidden');
+        });
+        
+        // Scene Number Toggle Logic
+        sceneNoBtn.addEventListener('click', () => {
+            showSceneNumbers = !showSceneNumbers;
+            sceneNoIndicator.classList.toggle('bg-green-500', showSceneNumbers);
+            sceneNoIndicator.classList.toggle('bg-gray-500', !showSceneNumbers);
+        });
+
+        // --- Initialization ---
+        setPlaceholder(); // Set the initial placeholder
+        history.stack = ['']; // Start with a blank history
+        history.currentIndex = 0;
+        history.updateButtons();
+        updateFontSize();
     </script>
 </body>
 </html>
