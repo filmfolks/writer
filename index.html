@@ -32,9 +32,9 @@
         .transition { text-align: right; text-transform: uppercase; font-weight: bold; }
 
         /* Custom scrollbar for a cleaner look */
-        textarea::-webkit-scrollbar, #screenplay-output::-webkit-scrollbar { width: 8px; }
-        textarea::-webkit-scrollbar-track { background: #1f2937; }
-        textarea::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
+        textarea::-webkit-scrollbar, #screenplay-output::-webkit-scrollbar, #scene-list::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track, #screenplay-output::-webkit-scrollbar-track, #scene-list::-webkit-scrollbar-track { background: #1f2937; }
+        textarea::-webkit-scrollbar-thumb, #screenplay-output::-webkit-scrollbar-thumb, #scene-list::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
         #screenplay-output::-webkit-scrollbar-track { background: #e5e7eb; }
         #screenplay-output::-webkit-scrollbar-thumb { background-color: #9ca3af; }
         
@@ -52,21 +52,6 @@
             display: flex;
         }
 
-        /* Mobile-specific toolbar styles */
-        @media (max-width: 768px) {
-            #desktop-side-toolbar {
-                display: none;
-            }
-            #mobile-bottom-toolbar {
-                display: flex;
-                position: fixed;
-                bottom: -100px; /* Initially hidden */
-                left: 0;
-                right: 0;
-                z-index: 50;
-                transition: bottom 0.2s ease-in-out;
-            }
-        }
         .dragging {
             opacity: 0.5;
             background: #4f46e5;
@@ -146,15 +131,19 @@
                  <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                  <!-- Side Toolbar -->
                  <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
+                    <button id="fullscreen-btn-inline-editor" class="hidden bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Exit Fullscreen">⛶</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="int" title="Insert INT.">I</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="ext" title="Insert EXT.">E</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="day" title="Insert DAY">D</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="night" title="Insert NIGHT">N</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
+                    <button id="undo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Undo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>
+                    </button>
+                    <button id="redo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Redo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+                    </button>
                  </div>
-                 <button id="fullscreen-btn-inline-editor" class="absolute top-6 right-10 text-white p-2 rounded-md bg-gray-700 bg-opacity-50 hover:bg-opacity-100 z-20 hidden text-2xl" title="Exit Fullscreen">⛶</button>
             </div>
              <!-- Action Button Area -->
             <div class="p-4 flex-shrink-0">
@@ -275,6 +264,8 @@
         const shareBtn = document.getElementById('share-btn');
         const undoBtn = document.getElementById('undo-btn');
         const redoBtn = document.getElementById('redo-btn');
+        const undoBtnSide = document.getElementById('undo-btn-side');
+        const redoBtnSide = document.getElementById('redo-btn-side');
         const infoBtn = document.getElementById('info-btn');
         const infoModal = document.getElementById('info-modal');
         const closeModalBtn = document.getElementById('close-info-modal-btn');
@@ -367,6 +358,8 @@ Type screenplay here & click SCRIPT button to format it...`;
             updateButtons() {
                 undoBtn.disabled = !this.canUndo();
                 redoBtn.disabled = !this.canRedo();
+                undoBtnSide.disabled = !this.canUndo();
+                redoBtnSide.disabled = !this.canRedo();
             }
         };
 
@@ -776,6 +769,8 @@ Type screenplay here & click SCRIPT button to format it...`;
 
         undoBtn.addEventListener('click', () => history.undo());
         redoBtn.addEventListener('click', () => history.redo());
+        undoBtnSide.addEventListener('click', () => history.undo());
+        redoBtnSide.addEventListener('click', () => history.redo());
         
         closeModalBtn.addEventListener('click', () => infoModal.classList.add('hidden'));
         
