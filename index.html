@@ -125,7 +125,7 @@
             <div class="flex-grow p-4 flex gap-2 overflow-hidden relative">
                  <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
-                    <button id="fullscreen-btn-inline-editor" class="hidden bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Exit Fullscreen">⛶</button>
+                   <button id="fullscreen-btn-inline-editor" class="bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Toggle Fullscreen">⛶</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
@@ -153,13 +153,6 @@
                 <button id="show-script-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO SCRIPT</button>
             </div>
         </div>
-
-        <div id="script-view" class="h-full flex-col hidden relative">
-             <button id="scene-navigator-btn" class="absolute top-4 right-4 bg-indigo-600 text-white w-12 h-12 rounded-lg shadow-lg z-20 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
-                </svg>
-            </button>
             <div class="flex-grow p-4 overflow-hidden">
                 <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
                     </div>
