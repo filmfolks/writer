@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fountain Script Pro</title>
-    <!-- Tailwind CSS for modern, responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for a classic screenplay look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- jsPDF for PDF export functionality -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         /* Using your provided CSS classes for formatting, adapted for the UI */
@@ -60,20 +57,17 @@
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
 
-    <!-- Header Section -->
     <header id="main-header" class="text-center py-2 border-b border-gray-700 relative flex items-center justify-between px-4">
-        <!-- Hamburger Menu Button -->
         <button id="hamburger-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
             </svg>
         </button>
         
-           <h1 class="text-2xl font-bold text-white absolute left-1/2 -translate-x-1/2" style="font-family: 'Courier Prime', monospace;">
-  ToscripT
+            <h1 class="text-2xl font-bold text-white absolute left-1/2 -translate-x-1/2" style="font-family: 'Courier Prime', monospace;">
+ ToscripT
 </h1>
 
-        <!-- Fullscreen Toggle Button (Header) -->
         <button id="fullscreen-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Toggle Fullscreen">
             <svg id="fullscreen-open-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
@@ -81,7 +75,6 @@
         </button>
     </header>
     
-    <!-- Hamburger Menu Panel -->
     <div id="menu-panel" class="absolute top-14 left-0 w-52 bg-gray-800 shadow-lg z-40 transform -translate-x-full transition-transform duration-300 ease-in-out rounded-br-lg">
         <div class="p-4">
             <nav class="flex flex-col space-y-2">
@@ -111,31 +104,20 @@
     </div>
 
 
-    <!-- Main Content Area -->
     <main class="main-content flex-grow overflow-hidden">
-        <!-- Write View (Editor) -->
         <div id="write-view" class="h-full flex flex-col">
-            <!-- Toolbar -->
             <div id="main-toolbar" class="bg-gray-800 p-2 flex items-center justify-center flex-wrap gap-2 shadow-md flex-shrink-0">
-                <button id="undo-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Undo">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>
-                </button>
-                <button id="redo-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Redo">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
-                </button>
                 <button id="zoom-out-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom Out">-</button>
                 <button id="zoom-in-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom In">+</button>
             </div>
-            <!-- Textarea and Side Toolbar Wrapper -->
             <div class="flex-grow p-4 flex gap-2 overflow-hidden relative">
                  <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                 <!-- Side Toolbar -->
-                 <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
+                <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
                     <button id="fullscreen-btn-inline-editor" class="hidden bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Exit Fullscreen">⛶</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
+                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
                     <button id="undo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Undo">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>
@@ -143,15 +125,12 @@
                     <button id="redo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Redo">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
                     </button>
-                 </div>
+                </div>
             </div>
-             <!-- Action Button Area -->
-            <div class="p-4 flex-shrink-0">
-                <!-- Ad Banner Placeholder -->
+             <div class="p-4 flex-shrink-0">
                 <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
                     Ad Banner Space
                 </div>
-                <!-- Mobile Bottom Toolbar -->
                 <div id="mobile-bottom-toolbar" class="hidden bg-gray-800 p-2 items-center justify-around flex-wrap gap-2 shadow-md rounded-lg">
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
@@ -163,22 +142,17 @@
             </div>
         </div>
 
-        <!-- Script View (Preview) -->
         <div id="script-view" class="h-full flex-col hidden relative">
-             <!-- Scene Navigator Button -->
-            <button id="scene-navigator-btn" class="absolute top-4 right-4 bg-indigo-600 text-white w-12 h-12 rounded-lg shadow-lg z-20 flex items-center justify-center">
+             <button id="scene-navigator-btn" class="absolute top-4 right-4 bg-indigo-600 text-white w-12 h-12 rounded-lg shadow-lg z-20 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
                 </svg>
             </button>
             <div class="flex-grow p-4 overflow-hidden">
                 <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
-                    <!-- Formatted screenplay will be injected here -->
-                </div>
+                    </div>
             </div>
-             <!-- Action Button Area -->
-            <div class="p-4 flex-shrink-0">
-                <!-- Ad Banner Placeholder -->
+             <div class="p-4 flex-shrink-0">
                 <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
                     Ad Banner Space
                 </div>
@@ -187,7 +161,6 @@
         </div>
     </main>
 
-    <!-- Scene Navigator Panel -->
     <div id="scene-navigator-panel" class="absolute top-0 right-0 h-full w-80 bg-gray-800 shadow-lg z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <div class="p-4 border-b border-gray-700 flex justify-between items-center">
             <div>
@@ -197,11 +170,9 @@
             <button id="close-navigator-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
         <ul id="scene-list" class="flex-grow overflow-y-auto p-2">
-            <!-- Scene items will be injected here -->
-        </ul>
+            </ul>
     </div>
 
-    <!-- Info Modal -->
     <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6 relative overflow-y-auto max-h-full">
             <button id="close-info-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
@@ -225,7 +196,6 @@
         </div>
     </div>
     
-    <!-- Title Page Modal -->
     <div id="title-page-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
              <button id="close-title-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
@@ -246,7 +216,6 @@
         </div>
     </div>
 
-    <!-- Hidden file input for opening files -->
     <input type="file" id="file-input" class="hidden" accept=".fountain,.txt">
 
     <script>
@@ -262,8 +231,7 @@
         const saveFdxBtn = document.getElementById('save-fdx-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
         const shareBtn = document.getElementById('share-btn');
-        const undoBtn = document.getElementById('undo-btn');
-        const redoBtn = document.getElementById('redo-btn');
+        // Undo/Redo buttons from the main toolbar are removed, we only use the side ones now.
         const undoBtnSide = document.getElementById('undo-btn-side');
         const redoBtnSide = document.getElementById('redo-btn-side');
         const infoBtn = document.getElementById('info-btn');
@@ -356,8 +324,7 @@ Type screenplay here & click SCRIPT button to format it...`;
                 this.updateButtons();
             },
             updateButtons() {
-                undoBtn.disabled = !this.canUndo();
-                redoBtn.disabled = !this.canRedo();
+                // We only need to update the side buttons now
                 undoBtnSide.disabled = !this.canUndo();
                 redoBtnSide.disabled = !this.canRedo();
             }
@@ -574,6 +541,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             if (confirm('Start a new project? Unsaved changes will be lost.')) {
                 scriptTitle = '';
                 scriptAuthor = '';
+                fountainInput.value = ''; // Set to empty before placeholder
                 screenplayOutput.innerHTML = '';
                 setPlaceholder(); // Use the new placeholder function
                 history.stack = ['']; // Reset history to a truly empty state
@@ -621,16 +589,16 @@ Type screenplay here & click SCRIPT button to format it...`;
         });
         shareBtn.addEventListener('click', () => {
              if (navigator.share) {
-                navigator.share({
-                    title: scriptTitle || 'My Screenplay',
-                    text: fountainInput.value,
-                }).catch((error) => {
-                    console.error('Share failed:', error);
-                    copyToClipboardFallback();
-                });
-            } else {
-                copyToClipboardFallback();
-            }
+                 navigator.share({
+                     title: scriptTitle || 'My Screenplay',
+                     text: fountainInput.value,
+                 }).catch((error) => {
+                     console.error('Share failed:', error);
+                     copyToClipboardFallback();
+                 });
+             } else {
+                 copyToClipboardFallback();
+             }
         });
 
         function copyToClipboardFallback() {
@@ -728,30 +696,33 @@ Type screenplay here & click SCRIPT button to format it...`;
                 checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
 
                 const leftMargin = config.leftMarginIn * 72;
-                const rightMargin = config.rightMarginIn * 72;
+                const rightMargin = (config.rightMarginIn || 1.0) * 72; // Default right margin for elements like character
                 const availableWidth = doc.internal.pageSize.getWidth() - leftMargin - rightMargin;
                 
                 let textLines = doc.splitTextToSize(token.content || '', availableWidth);
                 
                 if (token.type === 'sceneHeading' && showSceneNumbers) {
-                    const sceneNumStr = `${sceneNumber}.`;
+                    // Custom handling for dual-numbered scene headings
+                    const sceneNumStr = `${sceneNumber}`;
                     const sceneText = token.content;
+                    const textWidth = doc.getTextWidth(sceneText);
+                    
                     checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
-                    doc.text(sceneNumStr, margins.left, cursorY);
-                    doc.text(sceneText, margins.left + 30, cursorY);
+                    doc.text(sceneText, margins.left, cursorY);
                     doc.text(sceneNumStr, doc.internal.pageSize.getWidth() - margins.right, cursorY, { align: 'right' });
+
                     cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
                     sceneNumber++;
                 } else {
                      textLines.forEach(line => {
-                        checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
-                        let xPos = leftMargin;
-                        if(config.align === 'right') {
-                           xPos = doc.internal.pageSize.getWidth() - rightMargin;
-                        }
-                        doc.text(line, xPos, cursorY, { align: config.align || 'left' });
-                        cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
-                    });
+                         checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
+                         let xPos = leftMargin;
+                         if(config.align === 'right') {
+                            xPos = doc.internal.pageSize.getWidth() - rightMargin;
+                         }
+                         doc.text(line, xPos, cursorY, { align: config.align || 'left' });
+                         cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
+                     });
                 }
                 
                 cursorY += config.lineSpacingAfter * SCREENPLAY_SETTINGS.lineHeightPt;
@@ -767,8 +738,6 @@ Type screenplay here & click SCRIPT button to format it...`;
             inputTimeout = setTimeout(() => history.add(fountainInput.value), 300); // Debounce for performance
         });
 
-        undoBtn.addEventListener('click', () => history.undo());
-        redoBtn.addEventListener('click', () => history.redo());
         undoBtnSide.addEventListener('click', () => history.undo());
         redoBtnSide.addEventListener('click', () => history.redo());
         
@@ -802,12 +771,12 @@ Type screenplay here & click SCRIPT button to format it...`;
         // Fullscreen Logic
         const toggleFullscreen = () => {
              if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
+                 document.documentElement.requestFullscreen().catch(err => {
+                     console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                 });
+             } else {
+                 document.exitFullscreen();
+             }
         };
         fullscreenBtn.addEventListener('click', toggleFullscreen);
         fullscreenBtnInlineEditor.addEventListener('click', toggleFullscreen);
@@ -862,7 +831,7 @@ Type screenplay here & click SCRIPT button to format it...`;
                 autoSaveIndicator.classList.add('bg-gray-500');
             } else {
                 autoSaveIntervalId = setInterval(() => {
-                    const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+                    const filename = (scriptTitle || 'autosave_script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
                     downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain');
                 }, 120000); // 2 minutes
                 autoSaveIndicator.classList.add('bg-green-500');
@@ -890,16 +859,16 @@ Type screenplay here & click SCRIPT button to format it...`;
 
         function populateSceneNavigator() {
             sceneList.innerHTML = '';
-            const tokens = tokenizeFountain(fountainInput.value);
+            const lines = fountainInput.value.split('\n');
             let sceneIndex = 0;
-            tokens.forEach((token, index) => {
-                if (token.type === 'sceneHeading') {
+            lines.forEach((line) => {
+                const trimmedLine = line.trim().toUpperCase();
+                if (trimmedLine.startsWith('INT.') || trimmedLine.startsWith('EXT.')) {
                     const li = document.createElement('li');
-                    li.textContent = token.content;
+                    li.textContent = line;
                     li.className = 'p-2 text-gray-300 bg-gray-700 rounded-md mb-2 cursor-grab';
                     li.draggable = true;
                     li.dataset.sceneIndex = sceneIndex++;
-                    li.dataset.tokenIndex = index;
                     sceneList.appendChild(li);
                 }
             });
@@ -943,25 +912,61 @@ Type screenplay here & click SCRIPT button to format it...`;
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        // --- FIXED Scene Reordering Logic ---
         function reorderScript() {
-            const originalLines = fountainInput.value.split('\n');
+            const fullText = fountainInput.value;
+            const lines = fullText.split('\n');
+
+            // 1. Find content before the first scene and identify all scene blocks
             const sceneBlocks = [];
-            let currentBlock = [];
-            
-            originalLines.forEach(line => {
-                if ((line.trim().toUpperCase().startsWith('INT.') || line.trim().toUpperCase().startsWith('EXT.')) && currentBlock.length > 0) {
-                    sceneBlocks.push(currentBlock.join('\n'));
-                    currentBlock = [line];
+            let nonSceneHeader = [];
+            let currentSceneBlock = [];
+            let isFirstSceneFound = false;
+
+            lines.forEach(line => {
+                const isSceneHeading = line.trim().toUpperCase().startsWith('INT.') || line.trim().toUpperCase().startsWith('EXT.');
+                
+                if (isSceneHeading) {
+                    if (!isFirstSceneFound) {
+                         // Content before the first scene heading is now complete.
+                        isFirstSceneFound = true;
+                    }
+                    // If we have a scene block being built, push it to the list.
+                    if (currentSceneBlock.length > 0) {
+                        sceneBlocks.push(currentSceneBlock.join('\n'));
+                    }
+                    // Start a new scene block with the current heading.
+                    currentSceneBlock = [line];
                 } else {
-                    currentBlock.push(line);
+                    if (isFirstSceneFound) {
+                        currentSceneBlock.push(line);
+                    } else {
+                        nonSceneHeader.push(line);
+                    }
                 }
             });
-            sceneBlocks.push(currentBlock.join('\n'));
-            
-            const newOrderIndices = [...sceneList.querySelectorAll('li')].map(li => parseInt(li.dataset.sceneIndex));
-            const reorderedBlocks = newOrderIndices.map(index => sceneBlocks[index]);
+            // Push the last scene block after the loop finishes.
+            if (currentSceneBlock.length > 0) {
+                sceneBlocks.push(currentSceneBlock.join('\n'));
+            }
 
-            fountainInput.value = reorderedBlocks.join('\n\n'); // Join with double newline for spacing
+            // 2. Get the new order from the DOM
+            const newOrderIndices = [...sceneList.querySelectorAll('li')].map(li => parseInt(li.dataset.sceneIndex));
+
+            // 3. Reorder the scene blocks array
+            const reorderedSceneBlocks = newOrderIndices.map(index => sceneBlocks[index]);
+
+            // 4. Reconstruct the script
+            const headerText = nonSceneHeader.join('\n');
+            const newScriptArray = [];
+
+            if (headerText.trim() !== '') {
+                newScriptArray.push(headerText);
+            }
+            newScriptArray.push(...reorderedSceneBlocks);
+
+            // Join with a consistent double newline, which is standard between Fountain elements.
+            fountainInput.value = newScriptArray.join('\n\n');
             history.add(fountainInput.value);
             renderPreview(); // Update preview after reordering
         }
