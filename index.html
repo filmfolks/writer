@@ -154,7 +154,7 @@
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="night" title="Insert NIGHT">N</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
                  </div>
-                 <button id="fullscreen-btn-inline-editor" class="absolute top-6 right-10 text-white p-2 rounded-full hover:bg-gray-700 z-20 hidden" title="Exit Fullscreen">⛶</button>
+                 <button id="fullscreen-btn-inline-editor" class="absolute top-6 right-10 text-white p-2 rounded-md bg-gray-700 bg-opacity-50 hover:bg-opacity-100 z-20 hidden text-2xl" title="Exit Fullscreen">⛶</button>
             </div>
              <!-- Action Button Area -->
             <div class="p-4 flex-shrink-0">
@@ -815,7 +815,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             }
         };
         fullscreenBtn.addEventListener('click', toggleFullscreen);
-        fullscreenBtnInline.addEventListener('click', toggleFullscreen);
+        fullscreenBtnInlineEditor.addEventListener('click', toggleFullscreen);
 
 
         document.addEventListener('fullscreenchange', () => {
