@@ -54,9 +54,7 @@
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
 
-   <!-- Header Section -->
     <header id="main-header" class="text-center py-2 border-b border-gray-700 relative flex items-center justify-between px-4">
-        <!-- Hamburger Menu Button -->
         <button id="hamburger-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
@@ -68,14 +66,13 @@
         </h1>
 
         <div class="flex items-center gap-2">
-    <!-- Scene Navigator in header -->
-    <button id="scene-navigator-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Scene Navigator">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
-      </svg>
-    </button>
-  </div>
-</header>
+            <button id="scene-navigator-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Scene Navigator">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
     
     <div id="menu-panel" class="absolute top-14 left-0 w-52 bg-gray-800 shadow-lg z-40 transform -translate-x-full transition-transform duration-300 ease-in-out rounded-br-lg">
         <div class="p-4">
@@ -110,12 +107,12 @@
         <div id="write-view" class="h-full flex flex-col">
             <div id="main-toolbar" class="bg-gray-800 p-2 flex items-center justify-center flex-wrap gap-2 shadow-md flex-shrink-0">
                 <button id="zoom-in-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom In">+</button>
-                    <button id="zoom-out-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom Out">-</button>
+                <button id="zoom-out-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom Out">-</button>
             </div>
             <div class="flex-grow p-4 flex gap-2 overflow-hidden relative">
                  <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
-                   <button id="fullscreen-btn-inline-editor" class="bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Toggle Fullscreen">⛶</button>
+                    <button id="fullscreen-btn-inline-editor" class="bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Toggle Fullscreen">⛶</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
@@ -129,7 +126,7 @@
                     </button>
                 </div>
             </div>
-             <div class="p-4 flex-shrink-0">
+            <div class="p-4 flex-shrink-0">
                 <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
                     Ad Banner Space
                 </div>
@@ -143,11 +140,13 @@
                 <button id="show-script-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO SCRIPT</button>
             </div>
         </div>
+
+        <div id="script-view" class="h-full flex-col hidden relative">
             <div class="flex-grow p-4 overflow-hidden">
                 <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
                     </div>
             </div>
-             <div class="p-4 flex-shrink-0">
+            <div class="p-4 flex-shrink-0">
                 <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
                     Ad Banner Space
                 </div>
@@ -226,7 +225,6 @@
         const saveFdxBtn = document.getElementById('save-fdx-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
         const shareBtn = document.getElementById('share-btn');
-        // Undo/Redo buttons from the main toolbar are removed, we only use the side ones now.
         const undoBtnSide = document.getElementById('undo-btn-side');
         const redoBtnSide = document.getElementById('redo-btn-side');
         const infoBtn = document.getElementById('info-btn');
@@ -255,6 +253,8 @@
         const autoSaveBtn = document.getElementById('auto-save-btn');
         const autoSaveIndicator = document.getElementById('auto-save-indicator');
         const mobileToolbar = document.getElementById('mobile-bottom-toolbar');
+        const fullscreenBtnInlineEditor = document.getElementById('fullscreen-btn-inline-editor');
+
 
         // --- Global State ---
         let scriptTitle = "TITLE";
@@ -317,7 +317,6 @@ Type screenplay here & click SCRIPT button to format it...`;
                 this.updateButtons();
             },
             updateButtons() {
-                // We only need to update the side buttons now
                 undoBtnSide.disabled = !this.canUndo();
                 redoBtnSide.disabled = !this.canRedo();
             }
@@ -342,40 +341,34 @@ Type screenplay here & click SCRIPT button to format it...`;
                     continue;
                 }
 
-                // Scene headings
                 if (line.toUpperCase().startsWith('INT.') || line.toUpperCase().startsWith('EXT.')) {
                     tokens.push({ type: 'sceneHeading', content: line.toUpperCase() });
                     inDialogue = false;
                     continue;
                 }
 
-                // Transitions
                 if (line.toUpperCase().endsWith('TO:') || line.toUpperCase() === 'FADE OUT.' || line.toUpperCase() === 'FADE IN:' || line.toUpperCase() === 'FADE TO BLACK:') {
                     tokens.push({ type: 'transition', content: line.toUpperCase() });
                     inDialogue = false;
                     continue;
                 }
 
-                // Character (is uppercase and followed by a non-empty line)
                 if (line === line.toUpperCase() && !line.startsWith('!') && line.length > 0 && nextLine) {
                     tokens.push({ type: 'character', content: line });
                     inDialogue = true;
                     continue;
                 }
 
-                // Parenthetical
                 if (inDialogue && line.startsWith('(')) {
                     tokens.push({ type: 'parenthetical', content: line });
                     continue;
                 }
 
-                // Dialogue
                 if (inDialogue) {
                     tokens.push({ type: 'dialogue', content: line });
                     continue;
                 }
 
-                // Action
                 tokens.push({ type: 'action', content: line });
             }
 
@@ -483,7 +476,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
             textarea.selectionStart = textarea.selectionEnd = start + text.length;
             textarea.focus();
-            history.add(textarea.value); // Update history
+            history.add(textarea.value);
         }
 
         function wrapWithParens(textarea) {
@@ -496,7 +489,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             textarea.selectionStart = start + 1;
             textarea.selectionEnd = end + 1;
             textarea.focus();
-            history.add(textarea.value); // Update history
+            history.add(textarea.value);
         }
 
         function toggleCase(textarea) {
@@ -506,7 +499,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             let newText = '';
             let targetText = '';
 
-            if (start === end) { // No selection, toggle the whole line
+            if (start === end) {
                 let lineStart = textarea.value.lastIndexOf('\n', start - 1) + 1;
                 let lineEnd = textarea.value.indexOf('\n', start);
                 if (lineEnd === -1) lineEnd = textarea.value.length;
@@ -517,7 +510,7 @@ Type screenplay here & click SCRIPT button to format it...`;
                 textarea.selectionStart = start;
                 textarea.selectionEnd = end;
 
-            } else { // Toggle selection
+            } else {
                 targetText = textarea.value.substring(start, end);
                 newText = (targetText === targetText.toUpperCase()) ? targetText.toLowerCase() : targetText.toUpperCase();
                 textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
@@ -525,19 +518,18 @@ Type screenplay here & click SCRIPT button to format it...`;
                 textarea.selectionEnd = start + newText.length;
             }
             textarea.focus();
-            history.add(textarea.value); // Update history
+            history.add(textarea.value);
         }
 
         // --- Event Listeners ---
-        // Menu Buttons
         newBtn.addEventListener('click', () => {
             if (confirm('Start a new project? Unsaved changes will be lost.')) {
                 scriptTitle = '';
                 scriptAuthor = '';
-                fountainInput.value = ''; // Set to empty before placeholder
+                fountainInput.value = '';
                 screenplayOutput.innerHTML = '';
-                setPlaceholder(); // Use the new placeholder function
-                history.stack = ['']; // Reset history to a truly empty state
+                setPlaceholder();
+                history.stack = [''];
                 history.currentIndex = 0;
                 history.updateButtons();
                 menuPanel.classList.add('-translate-x-full');
@@ -563,7 +555,7 @@ Type screenplay here & click SCRIPT button to format it...`;
                 history.updateButtons();
             };
             reader.readAsText(file);
-            fileInput.value = ''; // Reset for next open
+            fileInput.value = '';
         });
 
         saveMenuBtn.addEventListener('click', (e) => {
@@ -596,7 +588,6 @@ Type screenplay here & click SCRIPT button to format it...`;
 
         function copyToClipboardFallback() {
             navigator.clipboard.writeText(fountainInput.value).then(() => {
-                const originalText = shareBtn.textContent;
                 shareBtn.textContent = 'Copied!';
                 setTimeout(() => {
                     shareBtn.textContent = 'Share';
@@ -611,17 +602,12 @@ Type screenplay here & click SCRIPT button to format it...`;
             menuPanel.classList.add('-translate-x-full');
         });
 
-        // Toolbar Action Buttons
         document.querySelectorAll('.action-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const action = e.currentTarget.dataset.action;
                 switch(action) {
                     case 'caps': toggleCase(fountainInput); break;
                     case 'parens': wrapWithParens(fountainInput); break;
-                    case 'int': insertAtCursor(fountainInput, 'INT. '); break;
-                    case 'ext': insertAtCursor(fountainInput, 'EXT. '); break;
-                    case 'day': insertAtCursor(fountainInput, ' - DAY'); break;
-                    case 'night': insertAtCursor(fountainInput, ' - NIGHT'); break;
                     case 'transition': cycleHelper(fountainInput, transitions, lastTransition); break;
                     case 'scene': cycleHelper(fountainInput, scenes, lastScene); break;
                     case 'time': cycleHelper(fountainInput, times, lastTime); break;
@@ -629,15 +615,14 @@ Type screenplay here & click SCRIPT button to format it...`;
             });
         });
 
-        // PDF Save - REWRITTEN FOR ACCURACY
         savePdfBtn.addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: 'pt', format: 'letter' }); // 8.5x11 inches = 612x792 points
+            const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 
             const SCREENPLAY_SETTINGS = {
                 font: 'Courier',
                 fontSizePt: 12,
-                lineHeightPt: 12, // Single spacing
+                lineHeightPt: 12,
             };
 
             const FORMATTING = {
@@ -664,7 +649,6 @@ Type screenplay here & click SCRIPT button to format it...`;
                 }
             };
 
-            // 1. Render Title Page
             if (scriptTitle || scriptAuthor) {
                 const titleY = pageHeight / 3;
                 if (scriptTitle) {
@@ -677,7 +661,6 @@ Type screenplay here & click SCRIPT button to format it...`;
                 doc.addPage();
             }
 
-            // 2. Render Script Content
             const tokens = tokenizeFountain(fountainInput.value);
             let sceneNumber = 1;
 
@@ -689,21 +672,17 @@ Type screenplay here & click SCRIPT button to format it...`;
                 checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
 
                 const leftMargin = config.leftMarginIn * 72;
-                const rightMargin = (config.rightMarginIn || 1.0) * 72; // Default right margin for elements like character
+                const rightMargin = (config.rightMarginIn || 1.0) * 72;
                 const availableWidth = doc.internal.pageSize.getWidth() - leftMargin - rightMargin;
                 
                 let textLines = doc.splitTextToSize(token.content || '', availableWidth);
                 
                 if (token.type === 'sceneHeading' && showSceneNumbers) {
-                    // Custom handling for dual-numbered scene headings
                     const sceneNumStr = `${sceneNumber}`;
                     const sceneText = token.content;
-                    const textWidth = doc.getTextWidth(sceneText);
-                    
                     checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
                     doc.text(sceneText, margins.left, cursorY);
                     doc.text(sceneNumStr, doc.internal.pageSize.getWidth() - margins.right, cursorY, { align: 'right' });
-
                     cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
                     sceneNumber++;
                 } else {
@@ -717,7 +696,6 @@ Type screenplay here & click SCRIPT button to format it...`;
                          cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
                      });
                 }
-                
                 cursorY += config.lineSpacingAfter * SCREENPLAY_SETTINGS.lineHeightPt;
             });
 
@@ -728,7 +706,7 @@ Type screenplay here & click SCRIPT button to format it...`;
         let inputTimeout;
         fountainInput.addEventListener('input', () => {
             clearTimeout(inputTimeout);
-            inputTimeout = setTimeout(() => history.add(fountainInput.value), 300); // Debounce for performance
+            inputTimeout = setTimeout(() => history.add(fountainInput.value), 300);
         });
 
         undoBtnSide.addEventListener('click', () => history.undo());
@@ -740,8 +718,8 @@ Type screenplay here & click SCRIPT button to format it...`;
         showScriptBtn.addEventListener('click', () => {
             renderPreview();
             writeView.classList.add('hidden');
-            scriptView.classList.add('flex');
             scriptView.classList.remove('hidden');
+            scriptView.classList.add('flex');
         });
 
         showWriteBtn.addEventListener('click', () => {
@@ -764,19 +742,17 @@ Type screenplay here & click SCRIPT button to format it...`;
         // Fullscreen Logic
         const toggleFullscreen = () => {
              if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-         });
-        } else {
-        document.exitFullscreen();
-        }
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+             } else {
+                 document.exitFullscreen();
+             }
         };
-
-        const fullscreenBtnInlineEditor = document.getElementById('fullscreen-btn-inline-editor');
         fullscreenBtnInlineEditor.addEventListener('click', toggleFullscreen);
         
         // Zoom Logic
-        let currentFontSize = 16; // Initial font size in pixels
+        let currentFontSize = 16;
         const updateFontSize = () => {
             fountainInput.style.fontSize = `${currentFontSize}px`;
         };
@@ -785,7 +761,7 @@ Type screenplay here & click SCRIPT button to format it...`;
             updateFontSize();
         });
         zoomOutBtn.addEventListener('click', () => {
-            currentFontSize = Math.max(8, currentFontSize - 2); // Minimum font size of 8px
+            currentFontSize = Math.max(8, currentFontSize - 2);
             updateFontSize();
         });
         
@@ -821,7 +797,7 @@ Type screenplay here & click SCRIPT button to format it...`;
                 autoSaveIntervalId = setInterval(() => {
                     const filename = (scriptTitle || 'autosave_script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
                     downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain');
-                }, 120000); // 2 minutes
+                }, 120000);
                 autoSaveIndicator.classList.add('bg-green-500');
                 autoSaveIndicator.classList.remove('bg-gray-500');
             }
@@ -843,7 +819,6 @@ Type screenplay here & click SCRIPT button to format it...`;
                  sceneNavigatorPanel.classList.add('translate-x-full');
             }
         });
-
 
         function populateSceneNavigator() {
             sceneList.innerHTML = '';
@@ -900,12 +875,10 @@ Type screenplay here & click SCRIPT button to format it...`;
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // --- FIXED Scene Reordering Logic ---
         function reorderScript() {
             const fullText = fountainInput.value;
             const lines = fullText.split('\n');
 
-            // 1. Find content before the first scene and identify all scene blocks
             const sceneBlocks = [];
             let nonSceneHeader = [];
             let currentSceneBlock = [];
@@ -916,14 +889,11 @@ Type screenplay here & click SCRIPT button to format it...`;
                 
                 if (isSceneHeading) {
                     if (!isFirstSceneFound) {
-                         // Content before the first scene heading is now complete.
                         isFirstSceneFound = true;
                     }
-                    // If we have a scene block being built, push it to the list.
                     if (currentSceneBlock.length > 0) {
                         sceneBlocks.push(currentSceneBlock.join('\n'));
                     }
-                    // Start a new scene block with the current heading.
                     currentSceneBlock = [line];
                 } else {
                     if (isFirstSceneFound) {
@@ -933,18 +903,13 @@ Type screenplay here & click SCRIPT button to format it...`;
                     }
                 }
             });
-            // Push the last scene block after the loop finishes.
             if (currentSceneBlock.length > 0) {
                 sceneBlocks.push(currentSceneBlock.join('\n'));
             }
 
-            // 2. Get the new order from the DOM
             const newOrderIndices = [...sceneList.querySelectorAll('li')].map(li => parseInt(li.dataset.sceneIndex));
-
-            // 3. Reorder the scene blocks array
             const reorderedSceneBlocks = newOrderIndices.map(index => sceneBlocks[index]);
 
-            // 4. Reconstruct the script
             const headerText = nonSceneHeader.join('\n');
             const newScriptArray = [];
 
@@ -953,25 +918,22 @@ Type screenplay here & click SCRIPT button to format it...`;
             }
             newScriptArray.push(...reorderedSceneBlocks);
 
-            // Join with a consistent double newline, which is standard between Fountain elements.
             fountainInput.value = newScriptArray.join('\n\n');
             history.add(fountainInput.value);
-            renderPreview(); // Update preview after reordering
+            renderPreview();
         }
         
-        // Floating Mobile Toolbar Logic
         if ('visualViewport' in window) {
             const handleViewportChange = () => {
                 const keyboardHeight = window.innerHeight - window.visualViewport.height;
-                if (keyboardHeight > 100) { // Keyboard is likely open
+                if (keyboardHeight > 100) {
                     mobileToolbar.style.bottom = `${keyboardHeight}px`;
                 } else {
-                    mobileToolbar.style.bottom = '-100px'; // Hide it
+                    mobileToolbar.style.bottom = '-100px';
                 }
             };
             
             fountainInput.addEventListener('focus', () => {
-                // Small delay to allow keyboard to start animating
                 setTimeout(() => window.visualViewport.addEventListener('resize', handleViewportChange), 100);
             });
             
@@ -981,10 +943,9 @@ Type screenplay here & click SCRIPT button to format it...`;
             });
         }
 
-
         // --- Initialization ---
-        setPlaceholder(); // Set the initial placeholder
-        history.stack = ['']; // Start with a blank history
+        setPlaceholder();
+        history.stack = [''];
         history.currentIndex = 0;
         history.updateButtons();
         updateFontSize();
