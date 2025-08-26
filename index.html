@@ -48,7 +48,7 @@
         :fullscreen .main-content {
             height: 100vh;
         }
-        :fullscreen #fullscreen-btn-inline {
+        :fullscreen #fullscreen-btn-inline-editor {
             display: flex;
         }
 
@@ -59,6 +59,12 @@
             }
             #mobile-bottom-toolbar {
                 display: flex;
+                position: fixed;
+                bottom: -100px; /* Initially hidden */
+                left: 0;
+                right: 0;
+                z-index: 50;
+                transition: bottom 0.2s ease-in-out;
             }
         }
         .dragging {
@@ -105,6 +111,10 @@
                         <a href="#" id="save-pdf-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.pdf</a>
                     </div>
                 </div>
+                 <a href="#" id="auto-save-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md flex justify-between items-center">
+                    <span>Auto-Save</span>
+                    <span id="auto-save-indicator" class="w-4 h-4 rounded-full bg-gray-500"></span>
+                </a>
                 <a href="#" id="share-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Share</a>
                 <a href="#" id="scene-no-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md flex justify-between items-center">
                     <span>Scene Nos.</span>
@@ -132,15 +142,10 @@
                 <button id="zoom-in-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom In">+</button>
             </div>
             <!-- Textarea and Side Toolbar Wrapper -->
-            <div class="flex-grow p-4 flex gap-2 overflow-hidden">
+            <div class="flex-grow p-4 flex gap-2 overflow-hidden relative">
                  <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                  <!-- Side Toolbar -->
                  <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
-                    <button id="fullscreen-btn-inline" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" title="Exit Fullscreen">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-fullscreen-exit" viewBox="0 0 16 16">
-                            <path d="M5.5 0a.5.5 0 0 1 .5.5v4A.5.5 0 0 1 5 5h-4a.5.5 0 0 1 0-1h3.5V.5a.5.5 0 0 1 .5-.5zm-5 5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V6.5H.5a.5.5 0 0 1-.5-.5zm10.5 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-3.5V15.5a.5.5 0 0 1-1 0v-4zM11 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v3.5a.5.5 0 0 1-1 0V6.5h-3a.5.5 0 0 1-.5-.5z"/>
-                        </svg>
-                    </button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="int" title="Insert INT.">I</button>
@@ -149,6 +154,7 @@
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="night" title="Insert NIGHT">N</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
                  </div>
+                 <button id="fullscreen-btn-inline-editor" class="absolute top-6 right-10 text-white p-2 rounded-full hover:bg-gray-700 z-20 hidden" title="Exit Fullscreen">⛶</button>
             </div>
              <!-- Action Button Area -->
             <div class="p-4 flex-shrink-0">
@@ -157,7 +163,7 @@
                     Ad Banner Space
                 </div>
                 <!-- Mobile Bottom Toolbar -->
-                <div id="mobile-bottom-toolbar" class="hidden bg-gray-800 p-2 items-center justify-around flex-wrap gap-2 shadow-md rounded-lg mb-4">
+                <div id="mobile-bottom-toolbar" class="hidden bg-gray-800 p-2 items-center justify-around flex-wrap gap-2 shadow-md rounded-lg">
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
                     <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
@@ -277,7 +283,7 @@
         const showScriptBtn = document.getElementById('show-script-btn');
         const showWriteBtn = document.getElementById('show-write-btn');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const fullscreenBtnInline = document.getElementById('fullscreen-btn-inline');
+        const fullscreenBtnInlineEditor = document.getElementById('fullscreen-btn-inline-editor');
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const menuPanel = document.getElementById('menu-panel');
         const zoomInBtn = document.getElementById('zoom-in-btn');
@@ -294,11 +300,15 @@
         const sceneNavigatorPanel = document.getElementById('scene-navigator-panel');
         const closeNavigatorBtn = document.getElementById('close-navigator-btn');
         const sceneList = document.getElementById('scene-list');
+        const autoSaveBtn = document.getElementById('auto-save-btn');
+        const autoSaveIndicator = document.getElementById('auto-save-indicator');
+        const mobileToolbar = document.getElementById('mobile-bottom-toolbar');
 
         // --- Global State ---
         let scriptTitle = "TITLE";
         let scriptAuthor = "written by your name";
         let showSceneNumbers = true;
+        let autoSaveIntervalId = null;
 
         // --- Placeholder Logic ---
         const placeholderText = `Sample Format...
@@ -847,6 +857,23 @@ Type screenplay here & click SCRIPT button to format it...`;
             sceneNoIndicator.classList.toggle('bg-green-500', showSceneNumbers);
             sceneNoIndicator.classList.toggle('bg-gray-500', !showSceneNumbers);
         });
+        
+        // Auto-Save Logic
+        autoSaveBtn.addEventListener('click', () => {
+            if (autoSaveIntervalId) {
+                clearInterval(autoSaveIntervalId);
+                autoSaveIntervalId = null;
+                autoSaveIndicator.classList.remove('bg-green-500');
+                autoSaveIndicator.classList.add('bg-gray-500');
+            } else {
+                autoSaveIntervalId = setInterval(() => {
+                    const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+                    downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain');
+                }, 120000); // 2 minutes
+                autoSaveIndicator.classList.add('bg-green-500');
+                autoSaveIndicator.classList.remove('bg-gray-500');
+            }
+        });
 
         // Scene Navigator Logic
         sceneNavigatorBtn.addEventListener('click', (e) => {
@@ -943,6 +970,29 @@ Type screenplay here & click SCRIPT button to format it...`;
             history.add(fountainInput.value);
             renderPreview(); // Update preview after reordering
         }
+        
+        // Floating Mobile Toolbar Logic
+        if ('visualViewport' in window) {
+            const handleViewportChange = () => {
+                const keyboardHeight = window.innerHeight - window.visualViewport.height;
+                if (keyboardHeight > 100) { // Keyboard is likely open
+                    mobileToolbar.style.bottom = `${keyboardHeight}px`;
+                } else {
+                    mobileToolbar.style.bottom = '-100px'; // Hide it
+                }
+            };
+            
+            fountainInput.addEventListener('focus', () => {
+                // Small delay to allow keyboard to start animating
+                setTimeout(() => window.visualViewport.addEventListener('resize', handleViewportChange), 100);
+            });
+            
+            fountainInput.addEventListener('blur', () => {
+                window.visualViewport.removeEventListener('resize', handleViewportChange);
+                mobileToolbar.style.bottom = '-100px';
+            });
+        }
+
 
         // --- Initialization ---
         setPlaceholder(); // Set the initial placeholder
