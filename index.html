@@ -4,7 +4,362 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Text Writer/Editor with AI Suggestions</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+        :root {
+            --mobile-bar-bg: #f5f5f5;
+            --mobile-btn-color: #000;
+            --mobile-border-color: #ccc;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #toolbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin: 2px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        button:hover {
+            background-color: #777;
+        }
+        #darkmode-btn {
+            margin-left: auto;
+        }
+        #fullscreen-btn {
+            margin-left: 2px;
+        }
+        #editor {
+            flex: 1;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: white;
+            border: none;
+            outline: none;
+            resize: none;
+            overflow: auto;
+            transition: font-size 0.3s, background-color 0.3s, color 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        #editor:empty:before {
+            content: attr(placeholder);
+            color: grey;
+        }
+        #preview {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            overflow: auto;
+        }
+        #footer {
+            padding: 5px;
+            background-color: #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #stats {
+            text-align: center;
+            flex: 1;
+        }
+        #formatting-tools button {
+            background-color: #ddd;
+            color: black;
+            padding: 4px 8px;
+            margin: 0 2px;
+        }
+        #formatting-tools button:hover {
+            background-color: #ccc;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        .dark-mode:root {
+            --mobile-bar-bg: #252525;
+            --mobile-btn-color: #ddd;
+            --mobile-border-color: #444;
+        }
+        .dark-mode #editor,
+        .dark-mode #preview {
+            background-color: #333;
+            color: #ddd;
+        }
+        .dark-mode #toolbar {
+            background-color: #111;
+        }
+        .dark-mode button {
+            background-color: #444;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .dark-mode button:hover {
+            background-color: #666;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        .dark-mode #footer {
+            background-color: #444;
+            color: #ddd;
+        }
+        .dark-mode #formatting-tools button {
+            background-color: #555;
+            color: #ddd;
+        }
+        .dark-mode #formatting-tools button:hover {
+            background-color: #666;
+        }
+        .focus-mode #editor:not(:focus) {
+            opacity: 0.5;
+        }
+        .fullscreen #toolbar {
+            display: none;
+        }
+        .fullscreen #fullscreen-controls {
+            display: none;
+        }
+        #fullscreen-controls {
+            display: none;
+        }
+
+        /* Original mobile styles */
+        .mobile #toolbar {
+            position: fixed; top: 0; left: -100%; width: 250px; height: 100vh; flex-direction: column; justify-content: flex-start; padding: 20px; transition: left 0.3s ease-in-out; z-index: 2000; overflow-y: auto;
+        }
+        .mobile #toolbar.open { left: 0; }
+        .mobile button { padding: 12px 16px; font-size: 18px; margin: 10px 0; width: 100%; }
+        .mobile #hamburger-btn { position: fixed; top: 10px; left: 10px; z-index: 3000; display: block; }
+        #hamburger-btn { display: none; }
+        .mobile #footer { flex-direction: column; align-items: center; }
+        .mobile #formatting-tools { display: flex; flex-wrap: wrap; justify-content: center; }
+        .mobile #formatting-tools button { padding: 8px 12px; font-size: 16px; margin: 5px; }
+        .mobile #editor { font-size: 18px; padding: 15px; }
+        .mobile #stats { margin-top: 10px; }
+
+        /* Suggestion sidebar */
+        #suggestion {
+            background-color: #f0f0f0; border-left: 1px solid #ccc; padding: 10px; display: none; position: fixed; top: 0; right: 0; bottom: 0; width: 300px; overflow-y: auto; z-index: 1000;
+        }
+        .dark-mode #suggestion { background-color: #444; color: #ddd; border-left-color: #666; }
+        #suggestion button { margin-top: 5px; display: block; font-family: 'Roboto', sans-serif; font-weight: 500; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, box-shadow 0.3s ease; padding: 6px 12px; }
+        .option { margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #ddd; }
+        .dark-mode .option { border-bottom-color: #666; }
+
+        /* Add a smooth transition to the editor and preview panes */
+        #editor, #preview {
+            margin-right: 0;
+            transition: margin-right 0.3s ease-in-out;
+        }
+        /* When the sidebar is visible, push the editor and preview to the left */
+        body.sidebar-visible #editor,
+        body.sidebar-visible #preview {
+            margin-right: 310px; /* 300px sidebar width + 10px gap */
+        }
+        /* We will now use a class on the body to show/hide the suggestion panel */
+        body.sidebar-visible #suggestion {
+            display: block;
+        }
+
+        /* Full screen footer buttons */
+        #fullscreen-footer-controls { display: none; }
+        .fullscreen #fullscreen-footer-controls { display: flex; margin-left: auto; }
+        .fullscreen #fullscreen-footer-controls button { padding: 4px 8px; font-size: 14px; }
+
+        /* Auto-hide footer in desktop mode */
+        #footer.hidden { opacity: 0; pointer-events: none; }
+        #footer.visible { opacity: 1; pointer-events: auto; }
+        
+        /* --- START OF MOBILE-SPECIFIC STYLES --- */
+        #mobile-top-bar, #mobile-bottom-bar {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            /* Hide all original desktop/mobile controls */
+            #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
+                display: none !important;
+            }
+
+            /* Show and style new mobile bars */
+            #mobile-top-bar, #mobile-bottom-bar {
+                display: flex;
+                align-items: center;
+                position: fixed;
+                left: 0;
+                width: 100%;
+                height: 45px;
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border-color: var(--mobile-border-color, #ccc);
+                z-index: 100;
+                padding: 0 5px;
+                box-sizing: border-box;
+                overflow-x: auto;
+                white-space: nowrap;
+                justify-content: flex-start;
+            }
+            
+            #mobile-top-bar {
+                top: 0;
+                border-bottom: 1px solid var(--mobile-border-color, #ccc);
+            }
+            #mobile-bottom-bar {
+                bottom: 0;
+                border-top: 1px solid var(--mobile-border-color, #ccc);
+            }
+            
+            #mobile-top-bar button, #mobile-bottom-bar button {
+                background: none;
+                border: none;
+                color: var(--mobile-btn-color, #000);
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 5px 6px;
+                flex-shrink: 0;
+                min-width: 1px;
+                max-width: 40px;
+                display: inline-block;
+                margin: 0 1px; /* Added tiny margin between buttons */
+                flex-shrink: 0;
+            }
+             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
+                background-color: #252525;
+                border-color: #444;
+            }
+             .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
+                color: #ddd;
+            }
+
+            #editor {
+                height: calc(100vh - 90px) !important;
+                margin-top: 45px;
+                padding: 15px !important;
+            }
+
+            /* New Slider Menu for mobile */
+            #mobile-slider-container {
+                position: relative;
+            }
+            
+            #mobile-slider-menu {
+                display: none;
+                position: fixed; /* Changed to fixed to overlay everything */
+                top: 45px; /* Below the top bar */
+                right: 5px; /* Align to right edge with some margin */
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border: 1px solid var(--mobile-border-color, #ccc);
+                border-radius: 8px; /* Slightly more rounded menu */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1001; /* Increased z-index to be above editor */
+                width: 120px; /* Wider for better text fit */
+                line-height: 1.5;
+                padding: 5px 0; /* Add some vertical padding */
+            }
+            .dark-mode #mobile-slider-menu {
+                 background-color: #333;
+                 border-color: #555;
+            }
+            
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+                font-size: 15px;
+                font-weight: 500;
+                padding: 10px 15px;
+                
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 15;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
+            }
+            /* Add a nice hover/tap effect */
+            #mobile-slider-menu button:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+             .dark-mode #mobile-slider-menu button:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            /* This is the corrected rule for the menu buttons */
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 10px 15px;
+                
+                /* Removes the incorrect width limit from other rules */
+                max-width: none; 
+
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
+            }
+            
+            #mobile-slider-menu.show {
+                display: block;
+            }
+
+            .focus-mode #mobile-top-bar,
+            .focus-mode #mobile-bottom-bar {
+                display: none;
+            }
+            .focus-mode #editor {
+                height: 100vh !important;
+                margin-top: 0;
+            }
+
+            /* Mobile specific changes - only these in top bar */
+            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], #mobile-slider-container button) {
+                display: none !important;
+            }
+
+            /* Shift + - 🌙 ⛶  to bottom bar and order as C + - B 🌙 ⛶ then others */
+            #mobile-bottom-bar {
+                display: flex;
+                justify-content: space-around;
+            }
+        }
+        /* --- END OF MOBILE-SPECIFIC STYLES --- */
+
+    </style>
 </head>
 <body>
     <div id="toolbar">
@@ -20,8 +375,10 @@
         <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
         <button title="Gemini API Instructions" onclick="showApiInstructions()">i</button>
         <button title="Set Gemini API Key" onclick="setApiKey()">API Key</button>
+        <button title="Set Local AI URL" onclick="setLocalApiUrl()">Local AI</button>
         <button title="Get AI Suggestion" onclick="getAiSuggestion()">AI Suggest</button>
         <button title="Proofread" onclick="getAiProofread()">Proofread</button>
+        <button title="Custom AI Prompt" onclick="getAiCustom()">AI Custom</button> 
         <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
         <button id="fullscreen-btn" title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
@@ -32,8 +389,10 @@
             <div id="mobile-slider-menu">
                 <button onclick="showApiInstructions()"> AI Instructions</button>
                 <button onclick="setApiKey()"> API Key</button>
+                <button onclick="setLocalApiUrl()"> Local AI</button>
                 <button onclick="getAiSuggestion()"> AI Suggest</button>
                 <button onclick="getAiProofread()"> AI Proofread</button>
+                <button onclick="getAiCustom()">AI Custom</button>
             </div>
         <button title="Save" onclick="handleSave()">S</button>
         <button title="Undo" onclick="undo()">↶</button>
@@ -90,6 +449,533 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        function toggleMobileSliderMenu() {
+            document.getElementById('mobile-slider-menu').classList.toggle('show');
+        }
+
+        function openSidebar() {
+            document.body.classList.add('sidebar-visible');
+        }
+
+        function closeSidebar() {
+            document.body.classList.remove('sidebar-visible');
+        }
+
+        function getContextText() {
+            const selection = window.getSelection();
+            // Check if there is a selection and it's not just whitespace
+            if (selection && selection.toString().trim().length > 0) {
+                return selection.toString().trim();
+            } else {
+                // If no selection, return the entire editor's text
+                const editor = document.getElementById('editor');
+                return editor.innerText.trim();
+            }
+        }
+
+        function isMobile() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /android|iPad|iPhone|iPod|windows phone/i.test(userAgent) && !window.MSStream;
+        }
+
+        if (isMobile()) {
+            document.body.classList.add('mobile');
+        }
+
+        function toggleMobileMenu() {
+            const toolbar = document.getElementById('toolbar');
+            toolbar.classList.toggle('open');
+        }
+
+        let fontSize = 16;
+        let history = [];
+        let historyIndex = -1;
+        let autoSaveInterval = null;
+        let isAutoSaveOn = false;
+        let footerTimeout;
+
+        function updateStats() {
+            const text = document.getElementById('editor').innerText;
+            const words = text.split(/\s+/).filter(word => word.length > 0).length;
+            const chars = text.length;
+            document.getElementById('stats').innerText = `Words: ${words} | Characters: ${chars}`;
+        }
+
+        function saveToHistory() {
+            const text = document.getElementById('editor').innerHTML;
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            history.push(text);
+            historyIndex = history.length - 1;
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
+            }
+        }
+
+        function handleSave() {
+            const options = 'Type the number to choose the format you want to save:\n1. txt\n2. pdf\n3. fountain\n4. img';
+            const choice = prompt(options);
+            if (!choice) return;
+            const text = document.getElementById('editor').innerText;
+            let extension;
+            switch (choice) {
+                case '1': extension = 'txt'; break;
+                case '2': extension = 'pdf'; break;
+                case '3': extension = 'fountain'; break;
+                case '4': extension = 'png'; break;
+                default:
+                    alert('Invalid choice. Please type a number from 1 to 4.');
+                    return;
+            }
+            let filename = `document.${extension}`;
+            if (extension === 'txt' || extension === 'fountain') {
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (extension === 'pdf') {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Print to PDF</title><style>body { font-family: "Courier New", monospace; font-size: 12pt; white-space: pre-wrap; }</style></head><body>' + text + '</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            } else if (extension === 'png') {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const lines = text.split('\n');
+                const lineHeight = 20;
+                canvas.width = 800;
+                canvas.height = lines.length * lineHeight + 40;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '12pt Courier New';
+                ctx.fillStyle = 'black';
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, 20, (index * lineHeight) + 30);
+                });
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'document.png';
+                a.click();
+            }
+            localStorage.setItem('savedText', text);
+        }
+
+        function clearText() {
+            document.getElementById('editor').innerHTML = '';
+            saveToHistory();
+            updateStats();
+        }
+
+        function togglePreview() {
+            const preview = document.getElementById('preview');
+            const editor = document.getElementById('editor');
+            if (preview.style.display === 'none') {
+                preview.innerHTML = multiMarkdownToHtml(editor.innerText);
+                preview.style.display = 'block';
+                editor.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                editor.style.display = 'block';
+            }
+        }
+
+        function multiMarkdownToHtml(text) {
+             // Basic MultiMarkdown parser
+              text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+              text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+              text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+              text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+              text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+              text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+              text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+              text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+              text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" style="max-width:100%;"/>');
+              text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+              text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
+              text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
+              text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+              text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+              text = text.replace(/^[-*]{3,}/gm, '<hr>');
+              text = text.replace(/\n/g, '<br />');
+              return text;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function increaseFont() {
+            fontSize += 2;
+            document.getElementById('editor').style.fontSize = `${fontSize}px`;
+        }
+
+        function decreaseFont() {
+            if (fontSize > 10) {
+                fontSize -= 2;
+                document.getElementById('editor').style.fontSize = `${fontSize}px`;
+            }
+        }
+
+        function searchReplace() {
+            const search = prompt('Enter text to search:');
+            if (!search) return;
+            const replace = prompt('Enter replacement text:');
+            const editor = document.getElementById('editor');
+            editor.innerHTML = editor.innerHTML.replace(new RegExp(search, 'g'), replace);
+            saveToHistory();
+            updateStats();
+        }
+
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleAutoSave() {
+            isAutoSaveOn = !isAutoSaveOn;
+            if (isAutoSaveOn) {
+                autoSaveInterval = setInterval(() => {
+                    const text = document.getElementById('editor').innerText;
+                    localStorage.setItem('savedText', text);
+                    console.log('Auto-saved to localStorage');
+                }, 120000);
+                alert('Auto-save enabled (every 2 minutes)');
+            } else {
+                clearInterval(autoSaveInterval);
+                alert('Auto-save disabled');
+            }
+        }
+
+        function showApiInstructions() {
+            alert('To get a Gemini API key:\n1. Visit https://aistudio.google.com/app/apikey\n2. Sign in with your Google account.\n3. Generate an API key.\n4. Copy and paste it using the "API Key" button in this app.');
+        }
+
+        function setApiKey() {
+            const apiKey = prompt('Enter your Gemini API Key:');
+            if (apiKey) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                localStorage.setItem('useLocalAi', 'false'); // Set the flag to use Gemini API
+                alert('API Key saved! AI features will now use the Gemini API.');
+            }
+        }
+
+        function setLocalApiUrl() {
+            const apiUrl = prompt('Enter your Local AI Server Base URL (e.g., http://192.168.43.111:1234):');
+            if (apiUrl) {
+                localStorage.setItem('localApiUrl', apiUrl);
+                localStorage.setItem('useLocalAi', 'true'); // Set the flag to use local AI
+                alert('Local AI URL saved! AI features will now use the local server.');
+            }
+        }
+        
+        async function callAiModel(promptText) {
+            const useLocal = localStorage.getItem('useLocalAi') === 'true';
+
+            if (useLocal) {
+                const baseUrl = localStorage.getItem('localApiUrl');
+                if (!baseUrl) {
+                    throw new Error('Please set your Local AI Server URL first using the "Local AI" button.');
+                }
+
+                const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "local-model",
+                        messages: [{ role: "user", content: promptText }],
+                        temperature: 0.7,
+                        stream: false
+                    })
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({}));
+                     const errorMsg = errorData.error?.message || response.statusText || 'Local API request failed';
+                     throw new Error(errorMsg);
+                }
+                const data = await response.json();
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Invalid response format from local AI server.');
+                }
+                return data.choices[0].message.content.trim();
+
+            } else {
+                const apiKey = localStorage.getItem('geminiApiKey');
+                if (!apiKey) {
+                    throw new Error('Please set your Gemini API Key first.');
+                }
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({}));
+                     const errorMsg = errorData.error?.message || 'Gemini API request failed';
+                     throw new Error(errorMsg);
+                }
+                const data = await response.json();
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                     throw new Error('Invalid response format from Gemini API.');
+                }
+                return data.candidates[0].content.parts[0].text.trim();
+            }
+        }
+
+        async function getAiSuggestion() {
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Generating suggestion...';
+            openSidebar();
+
+            const context = getContextText();
+
+            if (!context) {
+                alert('Please select some text or write something in the editor.');
+                closeSidebar();
+                return;
+            }
+
+            try {
+                const promptText = `Suggest 5 diverse and creative options for the next sentence or to continue the following text. Format your response as a simple numbered list. Do not add any extra commentary before or after the list.\n\nText: "${context}"`;
+                const fullSuggestion = await callAiModel(promptText);
+
+                const suggestions = fullSuggestion.split('\n')
+                    .map(line => line.replace(/^(\d+\.|-|\*)\s*/, '').trim())
+                    .filter(line => line.length > 0);
+
+                if (suggestions.length === 0) {
+                    throw new Error("Could not parse AI response or the response was empty.");
+                }
+
+                let html = '<strong>AI Suggestions:</strong><br>';
+                suggestions.forEach((suggestionText, index) => {
+                    const escapedText = suggestionText.replace(/'/g, "\\'");
+                    html += `<div class="option">
+                                <strong>Option ${index + 1}:</strong> ${suggestionText}<br>
+                                <button onclick="insertSuggestion('${escapedText}')">Insert</button>
+                             </div>`;
+                });
+                html += '<button onclick="closeSidebar()">Close</button>';
+                suggestionDiv.innerHTML = html;
+            } catch (error) {
+                suggestionDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function getAiProofread() {
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Proofreading...';
+            openSidebar();
+
+            const textToProofread = getContextText();
+
+            if (!textToProofread) {
+                alert('Please select text or write something in the editor to proofread.');
+                closeSidebar();
+                return;
+            }
+
+            try {
+                const promptText = `Proofread and correct grammar, spelling, and punctuation in this text. Return only the corrected version: "${textToProofread}"`;
+                const correctedText = await callAiModel(promptText);
+
+                suggestionDiv.innerHTML = `<strong>Proofread Version:</strong><br><div style="white-space: pre-wrap; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">${correctedText}</div><br><button onclick="insertProofread('${correctedText.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">Replace Original</button> <button onclick="closeSidebar()">Close</button>`;
+            } catch (error) {
+                suggestionDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        var customAiVariations = [];
+        function handleCustomInsert(index) {
+            if (customAiVariations[index]) {
+                insertSuggestion(customAiVariations[index]);
+            }
+        }
+
+        // REPLACE your old insertSuggestion function with this one
+function insertSuggestion(suggestion) {
+    const editor = document.getElementById('editor');
+    editor.focus(); // Crucial step: Make sure the editor is active
+
+    // This command intelligently replaces the current selection,
+    // or inserts text at the cursor if nothing is selected.
+    document.execCommand('insertText', false, suggestion);
+    
+    saveToHistory();
+    updateStats();
+}
+
+        // REPLACE your old insertProofread function with this one
+function insertProofread(correctedText) {
+    const editor = document.getElementById('editor');
+    editor.focus(); // Crucial step: Make sure the editor is active
+
+    // This command intelligently replaces the current selection,
+    // which is the correct behavior for proofreading.
+    document.execCommand('insertText', false, correctedText);
+
+    saveToHistory();
+    updateStats();
+}
+        
+        async function getAiCustom() {
+            customAiVariations = [];
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Generating custom response...';
+            openSidebar();
+            
+            const customInstruction = prompt("Enter your custom instruction (e.g., 'rewrite this as a screenplay scene', 'make this more professional', 'explain this to a 5-year-old'):");
+            if (!customInstruction) {
+                closeSidebar();
+                return;
+            }
+
+            const context = getContextText();
+
+            if (!context) {
+                alert('Please select text or write something in the editor to use this feature.');
+                closeSidebar();
+                return;
+            }
+            
+            const mobileMenu = document.getElementById('mobile-slider-menu');
+            if (mobileMenu && mobileMenu.classList.contains('show')) {
+                mobileMenu.classList.remove('show');
+            }
+
+            try {
+                const promptText = `Based on the user's instruction "${customInstruction}", provide 3 distinct and creative variations for the following text. IMPORTANT: Separate each complete variation with "---" on a new line by itself. Do not number the variations or add any other commentary.\n\nText: "${context}"`;
+                const fullResponse = await callAiModel(promptText);
+                const variations = fullResponse.split(/\n---\n/).filter(v => v.trim().length > 0);
+
+                if (variations.length === 0) {
+                     throw new Error("Could not parse AI response. The model may not have used the '---' separator. Retrying might help.");
+                }
+                customAiVariations = variations;
+
+                let html = `<strong>Custom Suggestions:</strong><br><small>Instruction: "${customInstruction}"</small>`;
+                variations.forEach((varText, index) => {
+                    const displayText = `<div style="white-space: pre-wrap; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 3px;">${varText}</div>`;
+                    html += `<div class="option">
+                                <strong>Option ${index + 1}:</strong>
+                                ${displayText}
+                                <br>
+                                <button onclick="handleCustomInsert(${index})">Insert</button>
+                             </div>`;
+                });
+                html += '<button onclick="closeSidebar()">Close</button>';
+                suggestionDiv.innerHTML = html;
+            } catch (error) {
+                console.error(error);
+                suggestionDiv.innerHTML = `Error: ${error.message}.`;
+            }
+        }
+
+       function formatText(type) {
+            let command = '';
+            let value = null;
+            switch (type) {
+                case 'bold': command = 'bold'; break;
+                case 'italic': command = 'italic'; break;
+                case 'heading1': command = 'formatBlock'; value = 'H1'; break;
+                case 'heading2': command = 'formatBlock'; value = 'H2'; break;
+                case 'numberedList': command = 'insertOrderedList'; break;
+                case 'quote': command = 'formatBlock'; value = 'BLOCKQUOTE'; break;
+                case 'table':
+                    const tableHTML = '<table border="1" width="100%"><tbody><tr><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><p><br></p>';
+                    document.execCommand('insertHTML', false, tableHTML);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'link':
+                    const url = prompt('Enter URL:') || 'https://example.com';
+                    if (url) document.execCommand('createLink', false, url);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'image':
+                    const imgUrl = prompt('Enter image URL:') || 'https://example.com/image.jpg';
+                    if (imgUrl) document.execCommand('insertImage', false, imgUrl);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'footnote':
+                    const note = prompt('Enter footnote text:') || 'note';
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const sup = document.createElement('sup');
+                        sup.textContent = `[${note}]`;
+                        range.insertNode(sup);
+                    }
+                    saveToHistory();
+                    updateStats();
+                    return;
+            }
+            if (command) document.execCommand(command, false, value);
+            saveToHistory();
+            updateStats();
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFullscreen = !!document.fullscreenElement;
+            document.body.classList.toggle('fullscreen', isFullscreen);
+            document.getElementById('fullscreen-footer-controls').style.display = isFullscreen ? 'flex' : 'none';
+        });
+
+        if (!isMobile()) {
+            const footer = document.getElementById('footer');
+            footer.classList.add('visible');
+            document.addEventListener('mousemove', (event) => {
+                clearTimeout(footerTimeout);
+                if (event.clientY > window.innerHeight - 100) {
+                    footer.classList.remove('hidden');
+                    footer.classList.add('visible');
+                } else {
+                    footerTimeout = setTimeout(() => {
+                        footer.classList.remove('visible');
+                        footer.classList.add('hidden');
+                    }, 2000);
+                }
+            });
+        }
+
+        document.getElementById('editor').addEventListener('input', () => {
+            saveToHistory();
+            updateStats();
+        });
+
+        saveToHistory();
+        updateStats();
+
+    </script>
 </body>
 </html>
