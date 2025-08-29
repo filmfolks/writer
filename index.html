@@ -3,952 +3,979 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fountain Script Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Enhanced Text Writer/Editor with AI Suggestions</title>
     <style>
-        /* Using your provided CSS classes for formatting, adapted for the UI */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+        :root {
+            --mobile-bar-bg: #f5f5f5;
+            --mobile-btn-color: #000;
+            --mobile-border-color: #ccc;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
-        #screenplay-output {
-            font-family: 'Courier New', monospace;
+        #toolbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin: 2px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        button:hover {
+            background-color: #777;
+        }
+        #darkmode-btn {
+            margin-left: auto;
+        }
+        #fullscreen-btn {
+            margin-left: 2px;
+        }
+        #editor {
+            flex: 1;
+            padding: 20px;
+            font-size: 16px;
             line-height: 1.5;
-            white-space: pre-wrap;
+            background-color: white;
+            border: none;
+            outline: none;
+            resize: none;
+            overflow: auto;
+            transition: font-size 0.3s, background-color 0.3s, color 0.3s;
+            font-family: 'Courier New', monospace;
         }
-        .title-page { text-align: center; margin-bottom: 0; padding-top: 2rem; }
-        .title-page h1 { font-weight: bold; margin-bottom: 0.25rem; text-transform: uppercase; }
-        .scene-heading { font-weight: bold; text-transform: uppercase; }
-        .action { /* No margin needed, spacing controlled by <br> */ }
-        .character { text-transform: uppercase; margin-left: 37%; }
-        .dialogue { margin-left: 25%; margin-right: 15%; }
-        .parenthetical { margin-left: 30%; }
-        .transition { text-align: right; text-transform: uppercase; font-weight: bold; }
-
-        /* Custom scrollbar for a cleaner look */
-        textarea::-webkit-scrollbar, #screenplay-output::-webkit-scrollbar, #scene-list::-webkit-scrollbar { width: 8px; }
-        textarea::-webkit-scrollbar-track, #screenplay-output::-webkit-scrollbar-track, #scene-list::-webkit-scrollbar-track { background: #1f2937; }
-        textarea::-webkit-scrollbar-thumb, #screenplay-output::-webkit-scrollbar-thumb, #scene-list::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
-        #screenplay-output::-webkit-scrollbar-track { background: #e5e7eb; }
-        #screenplay-output::-webkit-scrollbar-thumb { background-color: #9ca3af; }
-        
-        #info-modal { transition: opacity 0.3s ease; }
-        .main-content { height: calc(100vh - 50px); }
-
-        /* Rule to hide elements in fullscreen */
-        :fullscreen #main-toolbar, :fullscreen #main-header {
+        #editor:empty:before {
+            content: attr(placeholder);
+            color: grey;
+        }
+        #preview {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            overflow: auto;
+        }
+        #footer {
+            padding: 5px;
+            background-color: #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #stats {
+            text-align: center;
+            flex: 1;
+        }
+        #formatting-tools button {
+            background-color: #ddd;
+            color: black;
+            padding: 4px 8px;
+            margin: 0 2px;
+        }
+        #formatting-tools button:hover {
+            background-color: #ccc;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        .dark-mode:root {
+            --mobile-bar-bg: #252525;
+            --mobile-btn-color: #ddd;
+            --mobile-border-color: #444;
+        }
+        .dark-mode #editor,
+        .dark-mode #preview {
+            background-color: #333;
+            color: #ddd;
+        }
+        .dark-mode #toolbar {
+            background-color: #111;
+        }
+        .dark-mode button {
+            background-color: #444;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .dark-mode button:hover {
+            background-color: #666;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        .dark-mode #footer {
+            background-color: #444;
+            color: #ddd;
+        }
+        .dark-mode #formatting-tools button {
+            background-color: #555;
+            color: #ddd;
+        }
+        .dark-mode #formatting-tools button:hover {
+            background-color: #666;
+        }
+        .focus-mode #editor:not(:focus) {
+            opacity: 0.5;
+        }
+        .fullscreen #toolbar {
             display: none;
         }
-        :fullscreen .main-content {
-            height: 100vh;
+        .fullscreen #fullscreen-controls {
+            display: none;
+        }
+        #fullscreen-controls {
+            display: none;
         }
 
-        .dragging {
-            opacity: 0.5;
-            background: #4f46e5;
+        /* Original mobile styles */
+        .mobile #toolbar {
+            position: fixed; top: 0; left: -100%; width: 250px; height: 100vh; flex-direction: column; justify-content: flex-start; padding: 20px; transition: left 0.3s ease-in-out; z-index: 2000; overflow-y: auto;
         }
+        .mobile #toolbar.open { left: 0; }
+        .mobile button { padding: 12px 16px; font-size: 18px; margin: 10px 0; width: 100%; }
+        .mobile #hamburger-btn { position: fixed; top: 10px; left: 10px; z-index: 3000; display: block; }
+        #hamburger-btn { display: none; }
+        .mobile #footer { flex-direction: column; align-items: center; }
+        .mobile #formatting-tools { display: flex; flex-wrap: wrap; justify-content: center; }
+        .mobile #formatting-tools button { padding: 8px 12px; font-size: 16px; margin: 5px; }
+        .mobile #editor { font-size: 18px; padding: 15px; }
+        .mobile #stats { margin-top: 10px; }
+
+        /* Suggestion sidebar */
+        #suggestion {
+            background-color: #f0f0f0; border-left: 1px solid #ccc; padding: 10px; display: none; position: fixed; top: 0; right: 0; bottom: 0; width: 300px; overflow-y: auto; z-index: 1000;
+        }
+        .dark-mode #suggestion { background-color: #444; color: #ddd; border-left-color: #666; }
+        #suggestion button { margin-top: 5px; display: block; font-family: 'Roboto', sans-serif; font-weight: 500; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease, box-shadow 0.3s ease; padding: 6px 12px; }
+        .option { margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #ddd; }
+        .dark-mode .option { border-bottom-color: #666; }
+
+        /* Add a smooth transition to the editor and preview panes */
+        #editor, #preview {
+            margin-right: 0;
+            transition: margin-right 0.3s ease-in-out;
+        }
+        /* When the sidebar is visible, push the editor and preview to the left */
+        body.sidebar-visible #editor,
+        body.sidebar-visible #preview {
+            margin-right: 310px; /* 300px sidebar width + 10px gap */
+        }
+        /* We will now use a class on the body to show/hide the suggestion panel */
+        body.sidebar-visible #suggestion {
+            display: block;
+        }
+
+        /* Full screen footer buttons */
+        #fullscreen-footer-controls { display: none; }
+        .fullscreen #fullscreen-footer-controls { display: flex; margin-left: auto; }
+        .fullscreen #fullscreen-footer-controls button { padding: 4px 8px; font-size: 14px; }
+
+        /* Auto-hide footer in desktop mode */
+        #footer.hidden { opacity: 0; pointer-events: none; }
+        #footer.visible { opacity: 1; pointer-events: auto; }
+        
+        /* --- START OF MOBILE-SPECIFIC STYLES --- */
+        #mobile-top-bar, #mobile-bottom-bar {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            /* Hide all original desktop/mobile controls */
+            #toolbar, #footer, #hamburger-btn, .mobile #toolbar {
+                display: none !important;
+            }
+
+            /* Show and style new mobile bars */
+            #mobile-top-bar, #mobile-bottom-bar {
+                display: flex;
+                align-items: center;
+                position: fixed;
+                left: 0;
+                width: 100%;
+                height: 45px;
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border-color: var(--mobile-border-color, #ccc);
+                z-index: 100;
+                padding: 0 5px;
+                box-sizing: border-box;
+                overflow-x: auto;
+                white-space: nowrap;
+                justify-content: flex-start;
+            }
+            
+            #mobile-top-bar {
+                top: 0;
+                border-bottom: 1px solid var(--mobile-border-color, #ccc);
+            }
+            #mobile-bottom-bar {
+                bottom: 0;
+                border-top: 1px solid var(--mobile-border-color, #ccc);
+            }
+            
+            #mobile-top-bar button, #mobile-bottom-bar button {
+                background: none;
+                border: none;
+                color: var(--mobile-btn-color, #000);
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 5px 6px;
+                flex-shrink: 0;
+                min-width: 1px;
+                max-width: 40px;
+                display: inline-block;
+                margin: 0 1px; /* Added tiny margin between buttons */
+                flex-shrink: 0;
+            }
+             .dark-mode #mobile-top-bar, .dark-mode #mobile-bottom-bar {
+                background-color: #252525;
+                border-color: #444;
+            }
+             .dark-mode #mobile-top-bar button, .dark-mode #mobile-bottom-bar button {
+                color: #ddd;
+            }
+
+            #editor {
+                height: calc(100vh - 90px) !important;
+                margin-top: 45px;
+                padding: 15px !important;
+            }
+
+            /* New Slider Menu for mobile */
+            #mobile-slider-container {
+                position: relative;
+            }
+            
+            #mobile-slider-menu {
+                display: none;
+                position: fixed; /* Changed to fixed to overlay everything */
+                top: 45px; /* Below the top bar */
+                right: 5px; /* Align to right edge with some margin */
+                background-color: var(--mobile-bar-bg, #f5f5f5);
+                border: 1px solid var(--mobile-border-color, #ccc);
+                border-radius: 8px; /* Slightly more rounded menu */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1001; /* Increased z-index to be above editor */
+                width: 120px; /* Wider for better text fit */
+                line-height: 1.5;
+                padding: 5px 0; /* Add some vertical padding */
+            }
+            .dark-mode #mobile-slider-menu {
+                 background-color: #333;
+                 border-color: #555;
+            }
+            
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+                font-size: 15px;
+                font-weight: 500;
+                padding: 10px 15px;
+                
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 15;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
+            }
+            /* Add a nice hover/tap effect */
+            #mobile-slider-menu button:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+             .dark-mode #mobile-slider-menu button:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            /* This is the corrected rule for the menu buttons */
+            #mobile-slider-menu button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 10px 15px;
+                
+                /* Removes the incorrect width limit from other rules */
+                max-width: none; 
+
+                /* Resetting styles to look like a clean list */
+                margin: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent;
+                color: inherit;
+            }
+            
+            #mobile-slider-menu.show {
+                display: block;
+            }
+
+            .focus-mode #mobile-top-bar,
+            .focus-mode #mobile-bottom-bar {
+                display: none;
+            }
+            .focus-mode #editor {
+                height: 100vh !important;
+                margin-top: 0;
+            }
+
+            /* Mobile specific changes - only these in top bar */
+            #mobile-top-bar button:not([title="Save"], [title="Toggle Auto Save"], [title="Undo"], [title="Redo"], #mobile-slider-container button) {
+                display: none !important;
+            }
+
+            /* Shift + - 🌙 ⛶  to bottom bar and order as C + - B 🌙 ⛶ then others */
+            #mobile-bottom-bar {
+                display: flex;
+                justify-content: space-around;
+            }
+        }
+        /* --- END OF MOBILE-SPECIFIC STYLES --- */
+
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
-
-    <header id="main-header" class="text-center py-2 border-b border-gray-700 relative flex items-center justify-between px-4">
-        <button id="hamburger-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-        </button>
-        
-        <h1 class="text-2xl font-bold text-white absolute left-1/2 -translate-x-1/2" style="font-family: 'Courier Prime', monospace;">
-            ToscripT
-        </h1>
-
-        <div class="flex items-center gap-2">
-            <button id="scene-navigator-btn" class="text-white p-2 rounded-full hover:bg-gray-700 z-30" title="Scene Navigator">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
-                </svg>
-            </button>
-        </div>
-    </header>
-    
-    <div id="menu-panel" class="absolute top-14 left-0 w-52 bg-gray-800 shadow-lg z-40 transform -translate-x-full transition-transform duration-300 ease-in-out rounded-br-lg">
-        <div class="p-4">
-            <nav class="flex flex-col space-y-2">
-                <a href="#" id="new-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">New Project</a>
-                <a href="#" id="open-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Open...</a>
-                <a href="#" id="title-page-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Title Page</a>
-                <div class="relative">
-                    <a href="#" id="save-menu-btn" class="w-full text-left text-gray-300 hover:bg-gray-700 p-2 rounded-md">Save As...</a>
-                    <div id="save-menu" class="mt-1 ml-4 hidden">
-                        <a href="#" id="save-fountain-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.fountain</a>
-                        <a href="#" id="save-fdx-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.fdx</a>
-                        <a href="#" id="save-pdf-btn" class="block text-gray-300 hover:bg-gray-600 p-2 rounded-md">.pdf</a>
-                    </div>
-                </div>
-                 <a href="#" id="auto-save-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md flex justify-between items-center">
-                    <span>Auto-Save</span>
-                    <span id="auto-save-indicator" class="w-4 h-4 rounded-full bg-gray-500"></span>
-                </a>
-                <a href="#" id="share-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Share</a>
-                <a href="#" id="scene-no-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md flex justify-between items-center">
-                    <span>Scene Nos.</span>
-                    <span id="scene-no-indicator" class="w-4 h-4 rounded-full bg-green-500"></span>
-                </a>
-                <a href="#" id="info-btn" class="text-gray-300 hover:bg-gray-700 p-2 rounded-md">Info</a>
-            </nav>
-        </div>
+<body>
+    <div id="toolbar">
+        <button title="Save" onclick="handleSave()">S</button>
+        <button title="Clear" onclick="clearText()">C</button>
+        <button title="Preview" onclick="togglePreview()">P</button>
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Search and Replace" onclick="searchReplace()">Search/Replace</button>
+        <button title="Toggle Focus Mode" onclick="toggleFocusMode()">Focus Mode</button>
+        <button title="Undo" onclick="undo()">↶</button>
+        <button title="Redo" onclick="redo()">↷</button>
+        <button title="Toggle Auto Save" onclick="toggleAutoSave()">A</button>
+        <button title="Gemini API Instructions" onclick="showApiInstructions()">i</button>
+        <button title="Set Gemini API Key" onclick="setApiKey()">API Key</button>
+        <button title="Set Local AI URL" onclick="setLocalApiUrl()">Local AI</button>
+        <button title="Get AI Suggestion" onclick="getAiSuggestion()">AI Suggest</button>
+        <button title="Proofread" onclick="getAiProofread()">Proofread</button>
+        <button title="Custom AI Prompt" onclick="getAiCustom()">AI Custom</button> 
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button id="fullscreen-btn" title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
     </div>
 
-
-    <main class="main-content flex-grow overflow-hidden">
-        <div id="write-view" class="h-full flex flex-col">
-            <div id="main-toolbar" class="bg-gray-800 p-2 flex items-center justify-center flex-wrap gap-2 shadow-md flex-shrink-0">
-                <button id="zoom-in-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom In">+</button>
-                <button id="zoom-out-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm" title="Zoom Out">-</button>
+    <div id="mobile-top-bar">
+         <div id="mobile-slider-container">
+            <button onclick="toggleMobileSliderMenu()">ai☰</button>
+            <div id="mobile-slider-menu">
+                <button onclick="showApiInstructions()"> AI Instructions</button>
+                <button onclick="setApiKey()"> API Key</button>
+                <button onclick="setLocalApiUrl()"> Local AI</button>
+                <button onclick="getAiSuggestion()"> AI Suggest</button>
+                <button onclick="getAiProofread()"> AI Proofread</button>
+                <button onclick="getAiCustom()">AI Custom</button>
             </div>
-            <div class="flex-grow p-4 flex gap-2 overflow-hidden relative">
-                 <textarea id="fountain-input" class="flex-grow h-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                <div id="desktop-side-toolbar" class="flex flex-col gap-2 flex-shrink-0">
-                    <button id="fullscreen-btn-inline-editor" class="bg-gray-700 hover:bg-gray-800 text-white font-bold p-2 rounded-md text-2xl" title="Toggle Fullscreen">⛶</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
-                    <button id="undo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Undo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>
-                    </button>
-                    <button id="redo-btn-side" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-50" disabled title="Redo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 flex-shrink-0">
-                <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
-                    Ad Banner Space
-                </div>
-                <div id="mobile-bottom-toolbar" class="hidden bg-gray-800 p-2 items-center justify-around flex-wrap gap-2 shadow-md rounded-lg">
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="caps" title="Toggle Case">C</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="parens" title="Add Parentheses">()</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="scene" title="Cycle Scene">I/E</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="time" title="Cycle Time">D/N</button>
-                    <button class="action-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm" data-action="transition" title="Cycle Transition">T</button>
-                </div>
-                <button id="show-script-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO SCRIPT</button>
-            </div>
+        <button title="Save" onclick="handleSave()">S</button>
+        <button title="Undo" onclick="undo()">↶</button>
+        <button title="Redo" onclick="redo()">↷</button>
+        <button title="Increase Font Size" onclick="increaseFont()">+</button>
+        <button title="Decrease Font Size" onclick="decreaseFont()">-</button>
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">⛶</button>
         </div>
-
-        <div id="script-view" class="h-full flex-col hidden relative">
-            <div class="flex-grow p-4 overflow-hidden">
-                <div id="screenplay-output" class="w-full h-full bg-white text-black rounded-lg p-6 md:p-8 overflow-y-auto">
-                    </div>
-            </div>
-            <div class="p-4 flex-shrink-0">
-                <div class="ad-banner-placeholder w-full h-16 bg-gray-700 flex items-center justify-center text-gray-400 mb-4 rounded-lg">
-                    Ad Banner Space
-                </div>
-                <button id="show-write-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg text-lg">TO WRITE</button>
-            </div>
-        </div>
-    </main>
-
-    <div id="scene-navigator-panel" class="absolute top-0 right-0 h-full w-80 bg-gray-800 shadow-lg z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-        <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-            <div>
-                <h2 class="text-xl font-bold text-white">Scene Navigator</h2>
-                <p class="text-sm text-gray-400">Drag to reorder scenes</p>
-            </div>
-            <button id="close-navigator-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-        </div>
-        <ul id="scene-list" class="flex-grow overflow-y-auto p-2">
-            </ul>
     </div>
-
-    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6 relative overflow-y-auto max-h-full">
-            <button id="close-info-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
-            <h2 class="text-2xl font-bold mb-4 text-white">Info & Help</h2>
-            <h3 class="text-xl font-semibold mt-4 mb-2 text-white">Fountain Syntax</h3>
-            <ul class="list-disc list-inside text-gray-300 space-y-1">
-                <li><strong class="text-white">Scene Heading:</strong> Line starts with `INT.` or `EXT.`.</li>
-                <li><strong class="text-white">Character:</strong> Any line in all uppercase.</li>
-                <li><strong class="text-white">Dialogue:</strong> Any text following a Character.</li>
-                <li><strong class="text-white">Parenthetical:</strong> Text inside `(parentheses)` below a Character.</li>
-                <li><strong class="text-white">Transition:</strong> Line ends with `TO:` or is `FADE OUT.` etc.</li>
-            </ul>
-            <h3 class="text-xl font-semibold mt-6 mb-2 text-white">Button Guide</h3>
-            <ul class="list-disc list-inside text-gray-300 space-y-1">
-                <li><strong class="text-white">C:</strong> Toggles selected text or current line between UPPERCASE and lowercase.</li>
-                <li><strong class="text-white">():</strong> Wraps selected text in parentheses.</li>
-                <li><strong class="text-white">I / E:</strong> Inserts `INT.` or `EXT.` for scene headings.</li>
-                <li><strong class="text-white">D / N:</strong> Appends ` - DAY` or ` - NIGHT` to the current line.</li>
-                <li><strong class="text-white">T:</strong> Inserts and cycles through transitions (`CUT TO:`, `FADE IN:`, etc.).</li>
-            </ul>
-        </div>
+    <div id="mobile-bottom-bar">
+        <button title="Clear" onclick="clearText()">C</button>
+         <button title="Bold" onclick="formatText('bold')">B</button>
+        <button title="Italic" onclick="formatText('italic')">I</button>
+        <button title="Heading 1" onclick="formatText('heading1')">#</button>
+        <button title="Heading 2" onclick="formatText('heading2')">##</button>
+        <button title="Insert Link" onclick="formatText('link')">🔗</button>
+        <button title="Insert Image" onclick="formatText('image')">⬆️</button>
+        <button title="Numbered List" onclick="formatText('numberedList')">🔢</button>
+        <button title="Toggle Auto Save" onclick="toggleAutoSave()">🔄</button>
+        <button title="Blockquote" onclick="formatText('quote')">💬</button>
+        <button title="Insert Table" onclick="formatText('table')">▦</button>
+        <button title="Insert Footnote" onclick="formatText('footnote')">📎</button>
     </div>
     
-    <div id="title-page-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
-             <button id="close-title-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
-            <h2 class="text-2xl font-bold mb-4 text-white">Title Page</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="title-input" class="block text-sm font-medium text-gray-300">Title</label>
-                    <input type="text" id="title-input" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                 <div>
-                    <label for="author-input" class="block text-sm font-medium text-gray-300">Author</label>
-                    <input type="text" id="author-input" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-            </div>
-            <div class="mt-6">
-                 <button id="save-title-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Save</button>
-            </div>
+    <div id="fullscreen-controls">
+        <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+        <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
+    </div>
+    <div id="editor" contenteditable="true" placeholder="Start writing here..."></div>
+    <div id="preview"></div>
+    <div id="suggestion"></div>
+    <div id="footer">
+        <div id="formatting-tools">
+            <button title="Bold" onclick="formatText('bold')">B</button>
+            <button title="Italic" onclick="formatText('italic')">I</button>
+            <button title="Heading 1" onclick="formatText('heading1')">#</button>
+            <button title="Heading 2" onclick="formatText('heading2')">##</button>
+            <button title="Insert Link" onclick="formatText('link')">Link</button>
+            <button title="Insert Image" onclick="formatText('image')">Img</button>
+            <button title="Unordered List" onclick="formatText('list')">-</button>
+            <button title="Numbered List" onclick="formatText('numberedList')">1.</button>
+            <button title="Blockquote" onclick="formatText('quote')">></button>
+            <button title="Code" onclick="formatText('code')">Code</button>
+            <button title="Insert Table" onclick="formatText('table')">Table</button>
+            <button title="Insert Footnote" onclick="formatText('footnote')">Footnote</button>
+        </div>
+        <div id="stats">Words: 0 | Characters: 0</div>
+        <div id="fullscreen-footer-controls">
+            <button title="Toggle Dark Mode" onclick="toggleDarkMode()">🌙</button>
+            <button title="Get AI Suggestion" onclick="getAiSuggestion()">AI Suggest</button>
+            <button title="Proofread" onclick="getAiProofread()">Proofread</button>
+            <button title="Toggle Full Screen" onclick="toggleFullScreen()">[ ]</button>
         </div>
     </div>
-
-    <input type="file" id="file-input" class="hidden" accept=".fountain,.txt">
 
     <script>
-        // --- DOM Element References ---
-        const fountainInput = document.getElementById('fountain-input');
-        const screenplayOutput = document.getElementById('screenplay-output');
-        const newBtn = document.getElementById('new-btn');
-        const openBtn = document.getElementById('open-btn');
-        const fileInput = document.getElementById('file-input');
-        const saveMenuBtn = document.getElementById('save-menu-btn');
-        const saveMenu = document.getElementById('save-menu');
-        const saveFountainBtn = document.getElementById('save-fountain-btn');
-        const saveFdxBtn = document.getElementById('save-fdx-btn');
-        const savePdfBtn = document.getElementById('save-pdf-btn');
-        const shareBtn = document.getElementById('share-btn');
-        const undoBtnSide = document.getElementById('undo-btn-side');
-        const redoBtnSide = document.getElementById('redo-btn-side');
-        const infoBtn = document.getElementById('info-btn');
-        const infoModal = document.getElementById('info-modal');
-        const closeModalBtn = document.getElementById('close-info-modal-btn');
-        const writeView = document.getElementById('write-view');
-        const scriptView = document.getElementById('script-view');
-        const showScriptBtn = document.getElementById('show-script-btn');
-        const showWriteBtn = document.getElementById('show-write-btn');
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const menuPanel = document.getElementById('menu-panel');
-        const zoomInBtn = document.getElementById('zoom-in-btn');
-        const zoomOutBtn = document.getElementById('zoom-out-btn');
-        const titlePageBtn = document.getElementById('title-page-btn');
-        const titlePageModal = document.getElementById('title-page-modal');
-        const closeTitleModalBtn = document.getElementById('close-title-modal-btn');
-        const saveTitleBtn = document.getElementById('save-title-btn');
-        const titleInput = document.getElementById('title-input');
-        const authorInput = document.getElementById('author-input');
-        const sceneNoBtn = document.getElementById('scene-no-btn');
-        const sceneNoIndicator = document.getElementById('scene-no-indicator');
-        const sceneNavigatorBtn = document.getElementById('scene-navigator-btn');
-        const sceneNavigatorPanel = document.getElementById('scene-navigator-panel');
-        const closeNavigatorBtn = document.getElementById('close-navigator-btn');
-        const sceneList = document.getElementById('scene-list');
-        const autoSaveBtn = document.getElementById('auto-save-btn');
-        const autoSaveIndicator = document.getElementById('auto-save-indicator');
-        const mobileToolbar = document.getElementById('mobile-bottom-toolbar');
-        const fullscreenBtnInlineEditor = document.getElementById('fullscreen-btn-inline-editor');
-
-
-        // --- Global State ---
-        let scriptTitle = "TITLE";
-        let scriptAuthor = "written by your name";
-        let showSceneNumbers = true;
-        let autoSaveIntervalId = null;
-
-        // --- Placeholder Logic ---
-        const placeholderText = `Sample Format...
-        
-INT. ROOM – DAY
-Fingers race across a glowing phone screen.
-SANTHOSH
-(focused)
-Keep going, this is worth it.
-FADE OUT:
-
-Type screenplay here & click SCRIPT button to format it...`;
-
-        function setPlaceholder() {
-            if (fountainInput.value === '') {
-                fountainInput.value = placeholderText;
-                fountainInput.classList.add('text-gray-500', 'italic');
-            }
+        function toggleMobileSliderMenu() {
+            document.getElementById('mobile-slider-menu').classList.toggle('show');
         }
 
-        function clearPlaceholder() {
-            if (fountainInput.value === placeholderText) {
-                fountainInput.value = '';
-                fountainInput.classList.remove('text-gray-500', 'italic');
-            }
+        function openSidebar() {
+            document.body.classList.add('sidebar-visible');
         }
 
-        fountainInput.addEventListener('focus', clearPlaceholder);
-        fountainInput.addEventListener('blur', setPlaceholder);
-
-
-        // --- Undo/Redo Manager ---
-        const history = {
-            stack: [""],
-            currentIndex: 0,
-            add(value) {
-                if (value === placeholderText || value === this.stack[this.currentIndex]) return;
-                this.stack = this.stack.slice(0, this.currentIndex + 1);
-                this.stack.push(value);
-                this.currentIndex++;
-                this.updateButtons();
-            },
-            undo() { if (this.canUndo()) { this.currentIndex--; this.updateInput(); } },
-            redo() { if (this.canRedo()) { this.currentIndex++; this.updateInput(); } },
-            canUndo: () => history.currentIndex > 0,
-            canRedo: () => history.currentIndex < history.stack.length - 1,
-            updateInput() {
-                fountainInput.value = this.stack[this.currentIndex] || '';
-                if(fountainInput.value === ''){
-                    setPlaceholder();
-                } else {
-                    clearPlaceholder();
-                }
-                this.updateButtons();
-            },
-            updateButtons() {
-                undoBtnSide.disabled = !this.canUndo();
-                redoBtnSide.disabled = !this.canRedo();
-            }
-        };
-
-        // --- PARSING ENGINE (TOKENIZER) ---
-        function tokenizeFountain(input) {
-            if (input === placeholderText) {
-                return [];
-            }
-            const lines = input.split('\n');
-            const tokens = [];
-            let inDialogue = false;
-
-            for(let i=0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                const nextLine = (i + 1 < lines.length) ? lines[i+1].trim() : null;
-
-                if (!line) {
-                    tokens.push({ type: 'empty' });
-                    inDialogue = false;
-                    continue;
-                }
-
-                if (line.toUpperCase().startsWith('INT.') || line.toUpperCase().startsWith('EXT.')) {
-                    tokens.push({ type: 'sceneHeading', content: line.toUpperCase() });
-                    inDialogue = false;
-                    continue;
-                }
-
-                if (line.toUpperCase().endsWith('TO:') || line.toUpperCase() === 'FADE OUT.' || line.toUpperCase() === 'FADE IN:' || line.toUpperCase() === 'FADE TO BLACK:') {
-                    tokens.push({ type: 'transition', content: line.toUpperCase() });
-                    inDialogue = false;
-                    continue;
-                }
-
-                if (line === line.toUpperCase() && !line.startsWith('!') && line.length > 0 && nextLine) {
-                    tokens.push({ type: 'character', content: line });
-                    inDialogue = true;
-                    continue;
-                }
-
-                if (inDialogue && line.startsWith('(')) {
-                    tokens.push({ type: 'parenthetical', content: line });
-                    continue;
-                }
-
-                if (inDialogue) {
-                    tokens.push({ type: 'dialogue', content: line });
-                    continue;
-                }
-
-                tokens.push({ type: 'action', content: line });
-            }
-
-            return tokens;
+        function closeSidebar() {
+            document.body.classList.remove('sidebar-visible');
         }
 
-        function renderPreview() {
-            const rawText = fountainInput.value;
-            const tokens = tokenizeFountain(rawText);
-            let html = '';
-            let sceneNumber = 1;
-
-            if (scriptTitle || scriptAuthor) {
-                html += `<div class="title-page">`;
-                if (scriptTitle) html += `<h1>${scriptTitle}</h1>`;
-                if (scriptAuthor) html += `<h2>${scriptAuthor}</h2>`;
-                html += `</div>`;
-            }
-
-            tokens.forEach(token => {
-                if (token.type === 'sceneHeading') {
-                    const sceneText = token.content;
-                    const numberedLine = showSceneNumbers ? `<div class="flex justify-between"><span>${sceneText}</span><span>${sceneNumber}</span></div>` : sceneText;
-                    html += `<div class="scene-heading">${numberedLine}</div>`;
-                    sceneNumber++;
-                } else if (token.type === 'empty') {
-                    html += '<br>';
-                }
-                else {
-                    html += `<div class="${token.type}">${token.content}</div>`;
-                }
-            });
-            screenplayOutput.innerHTML = html;
-        }
-
-        // --- File & Action Handlers ---
-        function downloadFile(filename, content, mimeType) {
-            const element = document.createElement('a');
-            element.setAttribute('href', `data:${mimeType};charset=utf-8,` + encodeURIComponent(content));
-            element.setAttribute('download', filename);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-        
-        function createFdxContent(fountainText) {
-            const tokens = tokenizeFountain(fountainText);
-            let fdxContent = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><FinalDraft DocumentType="Script" Template="No" Version="1"><Content>`;
-            tokens.forEach(token => {
-                let type = 'Action';
-                if (token.type === 'sceneHeading') type = 'Scene Heading';
-                if (token.type === 'character') type = 'Character';
-                if (token.type === 'dialogue') type = 'Dialogue';
-                if (token.type === 'parenthetical') type = 'Parenthetical';
-                if (token.type === 'transition') type = 'Transition';
-                fdxContent += `<Paragraph Type="${type}"><Text>${token.content}</Text></Paragraph>`;
-            });
-            fdxContent += `</Content></FinalDraft>`;
-            return fdxContent;
-        }
-
-        // --- Textarea Manipulation Helpers ---
-        let lastTransition = { text: null, start: -1, end: -1 };
-        const transitions = ['CUT TO:', 'FADE IN:', 'FADE OUT:', 'FADE TO BLACK:'];
-        let lastScene = { text: null, start: -1, end: -1 };
-        const scenes = ['INT. ', 'EXT. ', 'INT./EXT. '];
-        let lastTime = { text: null, start: -1, end: -1 };
-        const times = [' - DAY', ' - NIGHT', ' - DAY / NIGHT'];
-
-        function cycleHelper(textarea, cycleArray, lastState) {
-            clearPlaceholder();
-            const currentPos = textarea.selectionStart;
-
-            if (lastState.text && currentPos === lastState.end && textarea.value.substring(lastState.start, lastState.end) === lastState.text) {
-                const currentIndex = cycleArray.indexOf(lastState.text);
-                const nextIndex = (currentIndex + 1) % cycleArray.length;
-                const newText = cycleArray[nextIndex];
-
-                textarea.value = textarea.value.substring(0, lastState.start) + newText + textarea.value.substring(lastState.end);
-                textarea.selectionStart = textarea.selectionEnd = lastState.start + newText.length;
-
-                lastState.text = newText;
-                lastState.end = lastState.start + newText.length;
+        function getContextText() {
+            const selection = window.getSelection();
+            // Check if there is a selection and it's not just whitespace
+            if (selection && selection.toString().trim().length > 0) {
+                return selection.toString().trim();
             } else {
-                const newText = cycleArray[0];
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-                textarea.selectionStart = textarea.selectionEnd = start + newText.length;
-                
-                lastState.start = start;
-                lastState.end = start + newText.length;
-                lastState.text = newText;
+                // If no selection, return the entire editor's text
+                const editor = document.getElementById('editor');
+                return editor.innerText.trim();
             }
-            textarea.focus();
-            history.add(textarea.value);
         }
 
-
-        function insertAtCursor(textarea, text) {
-            clearPlaceholder();
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
-            textarea.selectionStart = textarea.selectionEnd = start + text.length;
-            textarea.focus();
-            history.add(textarea.value);
+        function isMobile() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /android|iPad|iPhone|iPod|windows phone/i.test(userAgent) && !window.MSStream;
         }
 
-        function wrapWithParens(textarea) {
-            clearPlaceholder();
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-            const newText = `(${selectedText})`;
-            textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-            textarea.selectionStart = start + 1;
-            textarea.selectionEnd = end + 1;
-            textarea.focus();
-            history.add(textarea.value);
+        if (isMobile()) {
+            document.body.classList.add('mobile');
         }
 
-        function toggleCase(textarea) {
-            clearPlaceholder();
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            let newText = '';
-            let targetText = '';
-
-            if (start === end) {
-                let lineStart = textarea.value.lastIndexOf('\n', start - 1) + 1;
-                let lineEnd = textarea.value.indexOf('\n', start);
-                if (lineEnd === -1) lineEnd = textarea.value.length;
-                
-                targetText = textarea.value.substring(lineStart, lineEnd);
-                newText = (targetText === targetText.toUpperCase()) ? targetText.toLowerCase() : targetText.toUpperCase();
-                textarea.value = textarea.value.substring(0, lineStart) + newText + textarea.value.substring(lineEnd);
-                textarea.selectionStart = start;
-                textarea.selectionEnd = end;
-
-            } else {
-                targetText = textarea.value.substring(start, end);
-                newText = (targetText === targetText.toUpperCase()) ? targetText.toLowerCase() : targetText.toUpperCase();
-                textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-                textarea.selectionStart = start;
-                textarea.selectionEnd = start + newText.length;
-            }
-            textarea.focus();
-            history.add(textarea.value);
+        function toggleMobileMenu() {
+            const toolbar = document.getElementById('toolbar');
+            toolbar.classList.toggle('open');
         }
 
-        // --- Event Listeners ---
-        newBtn.addEventListener('click', () => {
-            if (confirm('Start a new project? Unsaved changes will be lost.')) {
-                scriptTitle = '';
-                scriptAuthor = '';
-                fountainInput.value = '';
-                screenplayOutput.innerHTML = '';
-                setPlaceholder();
-                history.stack = [''];
-                history.currentIndex = 0;
-                history.updateButtons();
-                menuPanel.classList.add('-translate-x-full');
-            }
-        });
+        let fontSize = 16;
+        let history = [];
+        let historyIndex = -1;
+        let autoSaveInterval = null;
+        let isAutoSaveOn = false;
+        let footerTimeout;
 
-        openBtn.addEventListener('click', () => {
-            fileInput.click();
-            menuPanel.classList.add('-translate-x-full');
-        });
-
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                fountainInput.value = content;
-                clearPlaceholder();
-                history.stack = ['', content];
-                history.currentIndex = 1;
-                history.updateButtons();
-            };
-            reader.readAsText(file);
-            fileInput.value = '';
-        });
-
-        saveMenuBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            saveMenu.classList.toggle('hidden');
-        });
-        saveFountainBtn.addEventListener('click', (e) => { 
-            e.preventDefault();
-            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
-            downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain'); 
-        });
-        saveFdxBtn.addEventListener('click', (e) => { 
-            e.preventDefault();
-            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
-            downloadFile(`${filename}.fdx`, createFdxContent(fountainInput.value), 'application/xml'); 
-        });
-        shareBtn.addEventListener('click', () => {
-             if (navigator.share) {
-                 navigator.share({
-                     title: scriptTitle || 'My Screenplay',
-                     text: fountainInput.value,
-                 }).catch((error) => {
-                     console.error('Share failed:', error);
-                     copyToClipboardFallback();
-                 });
-             } else {
-                 copyToClipboardFallback();
-             }
-        });
-
-        function copyToClipboardFallback() {
-            navigator.clipboard.writeText(fountainInput.value).then(() => {
-                shareBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    shareBtn.textContent = 'Share';
-                }, 2000);
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
+        function updateStats() {
+            const text = document.getElementById('editor').innerText;
+            const words = text.split(/\s+/).filter(word => word.length > 0).length;
+            const chars = text.length;
+            document.getElementById('stats').innerText = `Words: ${words} | Characters: ${chars}`;
         }
 
-        infoBtn.addEventListener('click', () => {
-            infoModal.classList.remove('hidden');
-            menuPanel.classList.add('-translate-x-full');
-        });
-
-        document.querySelectorAll('.action-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const action = e.currentTarget.dataset.action;
-                switch(action) {
-                    case 'caps': toggleCase(fountainInput); break;
-                    case 'parens': wrapWithParens(fountainInput); break;
-                    case 'transition': cycleHelper(fountainInput, transitions, lastTransition); break;
-                    case 'scene': cycleHelper(fountainInput, scenes, lastScene); break;
-                    case 'time': cycleHelper(fountainInput, times, lastTime); break;
-                }
-            });
-        });
-
-        savePdfBtn.addEventListener('click', () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-
-            const SCREENPLAY_SETTINGS = {
-                font: 'Courier',
-                fontSizePt: 12,
-                lineHeightPt: 12,
-            };
-
-            const FORMATTING = {
-                sceneHeading: { leftMarginIn: 1.5, rightMarginIn: 1.0, lineSpacingBefore: 1, lineSpacingAfter: 1 },
-                action: { leftMarginIn: 1.5, rightMarginIn: 1.0, lineSpacingBefore: 0, lineSpacingAfter: 0 },
-                character: { leftMarginIn: 3.7, lineSpacingBefore: 1, lineSpacingAfter: 0 },
-                parenthetical: { leftMarginIn: 3.1, lineSpacingBefore: 0, lineSpacingAfter: 0 },
-                dialogue: { leftMarginIn: 2.5, rightMarginIn: 2.5, lineSpacingBefore: 0, lineSpacingAfter: 0 },
-                transition: { leftMarginIn: 1.5, rightMarginIn: 1.0, align: 'right', lineSpacingBefore: 1, lineSpacingAfter: 1 },
-                empty: { lineSpacingBefore: 1, lineSpacingAfter: 0}
-            };
-
-            const margins = { top: 72, bottom: 72, left: 108, right: 72 };
-            const pageHeight = doc.internal.pageSize.getHeight();
-            let cursorY = margins.top;
-
-            doc.setFont(SCREENPLAY_SETTINGS.font, 'normal');
-            doc.setFontSize(SCREENPLAY_SETTINGS.fontSizePt);
-
-            const checkPageBreak = (neededHeight) => {
-                if (cursorY + neededHeight > pageHeight - margins.bottom) {
-                    doc.addPage();
-                    cursorY = margins.top;
-                }
-            };
-
-            if (scriptTitle || scriptAuthor) {
-                const titleY = pageHeight / 3;
-                if (scriptTitle) {
-                    doc.text(scriptTitle.toUpperCase(), doc.internal.pageSize.getWidth() / 2, titleY, { align: 'center' });
-                }
-                if (scriptAuthor) {
-                    doc.text("Written by", doc.internal.pageSize.getWidth() / 2, titleY + 40, { align: 'center' });
-                    doc.text(scriptAuthor, doc.internal.pageSize.getWidth() / 2, titleY + 60, { align: 'center' });
-                }
-                doc.addPage();
+        function saveToHistory() {
+            const text = document.getElementById('editor').innerHTML;
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
             }
+            history.push(text);
+            historyIndex = history.length - 1;
+        }
 
-            const tokens = tokenizeFountain(fountainInput.value);
-            let sceneNumber = 1;
-
-            tokens.forEach(token => {
-                const config = FORMATTING[token.type];
-                if (!config) return;
-
-                cursorY += config.lineSpacingBefore * SCREENPLAY_SETTINGS.lineHeightPt;
-                checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
-
-                const leftMargin = config.leftMarginIn * 72;
-                const rightMargin = (config.rightMarginIn || 1.0) * 72;
-                const availableWidth = doc.internal.pageSize.getWidth() - leftMargin - rightMargin;
-                
-                let textLines = doc.splitTextToSize(token.content || '', availableWidth);
-                
-                if (token.type === 'sceneHeading' && showSceneNumbers) {
-                    const sceneNumStr = `${sceneNumber}`;
-                    const sceneText = token.content;
-                    checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
-                    doc.text(sceneText, margins.left, cursorY);
-                    doc.text(sceneNumStr, doc.internal.pageSize.getWidth() - margins.right, cursorY, { align: 'right' });
-                    cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
-                    sceneNumber++;
-                } else {
-                     textLines.forEach(line => {
-                         checkPageBreak(SCREENPLAY_SETTINGS.lineHeightPt);
-                         let xPos = leftMargin;
-                         if(config.align === 'right') {
-                            xPos = doc.internal.pageSize.getWidth() - rightMargin;
-                         }
-                         doc.text(line, xPos, cursorY, { align: config.align || 'left' });
-                         cursorY += SCREENPLAY_SETTINGS.lineHeightPt;
-                     });
-                }
-                cursorY += config.lineSpacingAfter * SCREENPLAY_SETTINGS.lineHeightPt;
-            });
-
-            const filename = (scriptTitle || 'script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
-            doc.save(`${filename}.pdf`);
-        });
-
-        let inputTimeout;
-        fountainInput.addEventListener('input', () => {
-            clearTimeout(inputTimeout);
-            inputTimeout = setTimeout(() => history.add(fountainInput.value), 300);
-        });
-
-        undoBtnSide.addEventListener('click', () => history.undo());
-        redoBtnSide.addEventListener('click', () => history.redo());
-        
-        closeModalBtn.addEventListener('click', () => infoModal.classList.add('hidden'));
-        
-        // View Switching Logic
-        showScriptBtn.addEventListener('click', () => {
-            renderPreview();
-            writeView.classList.add('hidden');
-            scriptView.classList.remove('hidden');
-            scriptView.classList.add('flex');
-        });
-
-        showWriteBtn.addEventListener('click', () => {
-            scriptView.classList.add('hidden');
-            scriptView.classList.remove('flex');
-            writeView.classList.remove('hidden');
-        });
-
-        // Hamburger Menu Logic
-        hamburgerBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menuPanel.classList.toggle('-translate-x-full');
-        });
-        document.addEventListener('click', (e) => {
-            if (!menuPanel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                 menuPanel.classList.add('-translate-x-full');
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
             }
-        });
+        }
 
-        // Fullscreen Logic
-        const toggleFullscreen = () => {
-             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                document.getElementById('editor').innerHTML = history[historyIndex];
+                updateStats();
+            }
+        }
+
+        function handleSave() {
+            const options = 'Type the number to choose the format you want to save:\n1. txt\n2. pdf\n3. fountain\n4. img';
+            const choice = prompt(options);
+            if (!choice) return;
+            const text = document.getElementById('editor').innerText;
+            let extension;
+            switch (choice) {
+                case '1': extension = 'txt'; break;
+                case '2': extension = 'pdf'; break;
+                case '3': extension = 'fountain'; break;
+                case '4': extension = 'png'; break;
+                default:
+                    alert('Invalid choice. Please type a number from 1 to 4.');
+                    return;
+            }
+            let filename = `document.${extension}`;
+            if (extension === 'txt' || extension === 'fountain') {
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (extension === 'pdf') {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Print to PDF</title><style>body { font-family: "Courier New", monospace; font-size: 12pt; white-space: pre-wrap; }</style></head><body>' + text + '</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            } else if (extension === 'png') {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const lines = text.split('\n');
+                const lineHeight = 20;
+                canvas.width = 800;
+                canvas.height = lines.length * lineHeight + 40;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '12pt Courier New';
+                ctx.fillStyle = 'black';
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, 20, (index * lineHeight) + 30);
                 });
-             } else {
-                 document.exitFullscreen();
-             }
-        };
-        fullscreenBtnInlineEditor.addEventListener('click', toggleFullscreen);
-        
-        // Zoom Logic
-        let currentFontSize = 16;
-        const updateFontSize = () => {
-            fountainInput.style.fontSize = `${currentFontSize}px`;
-        };
-        zoomInBtn.addEventListener('click', () => {
-            currentFontSize += 2;
-            updateFontSize();
-        });
-        zoomOutBtn.addEventListener('click', () => {
-            currentFontSize = Math.max(8, currentFontSize - 2);
-            updateFontSize();
-        });
-        
-        // Title Page Modal Logic
-        titlePageBtn.addEventListener('click', () => {
-            titleInput.value = scriptTitle;
-            authorInput.value = scriptAuthor;
-            titlePageModal.classList.remove('hidden');
-            menuPanel.classList.add('-translate-x-full');
-        });
-        closeTitleModalBtn.addEventListener('click', () => titlePageModal.classList.add('hidden'));
-        saveTitleBtn.addEventListener('click', () => {
-            scriptTitle = titleInput.value;
-            scriptAuthor = authorInput.value;
-            titlePageModal.classList.add('hidden');
-        });
-        
-        // Scene Number Toggle Logic
-        sceneNoBtn.addEventListener('click', () => {
-            showSceneNumbers = !showSceneNumbers;
-            sceneNoIndicator.classList.toggle('bg-green-500', showSceneNumbers);
-            sceneNoIndicator.classList.toggle('bg-gray-500', !showSceneNumbers);
-        });
-        
-        // Auto-Save Logic
-        autoSaveBtn.addEventListener('click', () => {
-            if (autoSaveIntervalId) {
-                clearInterval(autoSaveIntervalId);
-                autoSaveIntervalId = null;
-                autoSaveIndicator.classList.remove('bg-green-500');
-                autoSaveIndicator.classList.add('bg-gray-500');
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'document.png';
+                a.click();
+            }
+            localStorage.setItem('savedText', text);
+        }
+
+        function clearText() {
+            document.getElementById('editor').innerHTML = '';
+            saveToHistory();
+            updateStats();
+        }
+
+        function togglePreview() {
+            const preview = document.getElementById('preview');
+            const editor = document.getElementById('editor');
+            if (preview.style.display === 'none') {
+                preview.innerHTML = multiMarkdownToHtml(editor.innerText);
+                preview.style.display = 'block';
+                editor.style.display = 'none';
             } else {
-                autoSaveIntervalId = setInterval(() => {
-                    const filename = (scriptTitle || 'autosave_script').replace(/\s+/g, '_').replace(/[^\w-]/g, '');
-                    downloadFile(`${filename}.fountain`, fountainInput.value, 'text/plain');
+                preview.style.display = 'none';
+                editor.style.display = 'block';
+            }
+        }
+
+        function multiMarkdownToHtml(text) {
+             // Basic MultiMarkdown parser
+              text = text.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+              text = text.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+              text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+              text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+              text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+              text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+              text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+              text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+              text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" style="max-width:100%;"/>');
+              text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+              text = text.replace(/^\s*[-*+] (.*)/gm, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/g, '');
+              text = text.replace(/^\s*\d+\. (.*)/gm, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/g, '');
+              text = text.replace(/^> (.*)/gm, '<blockquote>$1</blockquote>');
+              text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+              text = text.replace(/^[-*]{3,}/gm, '<hr>');
+              text = text.replace(/\n/g, '<br />');
+              return text;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function increaseFont() {
+            fontSize += 2;
+            document.getElementById('editor').style.fontSize = `${fontSize}px`;
+        }
+
+        function decreaseFont() {
+            if (fontSize > 10) {
+                fontSize -= 2;
+                document.getElementById('editor').style.fontSize = `${fontSize}px`;
+            }
+        }
+
+        function searchReplace() {
+            const search = prompt('Enter text to search:');
+            if (!search) return;
+            const replace = prompt('Enter replacement text:');
+            const editor = document.getElementById('editor');
+            editor.innerHTML = editor.innerHTML.replace(new RegExp(search, 'g'), replace);
+            saveToHistory();
+            updateStats();
+        }
+
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleAutoSave() {
+            isAutoSaveOn = !isAutoSaveOn;
+            if (isAutoSaveOn) {
+                autoSaveInterval = setInterval(() => {
+                    const text = document.getElementById('editor').innerText;
+                    localStorage.setItem('savedText', text);
+                    console.log('Auto-saved to localStorage');
                 }, 120000);
-                autoSaveIndicator.classList.add('bg-green-500');
-                autoSaveIndicator.classList.remove('bg-gray-500');
-            }
-        });
-
-        // Scene Navigator Logic
-        sceneNavigatorBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            populateSceneNavigator();
-            sceneNavigatorPanel.classList.toggle('translate-x-full');
-        });
-        
-        closeNavigatorBtn.addEventListener('click', () => {
-            sceneNavigatorPanel.classList.add('translate-x-full');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!sceneNavigatorPanel.contains(e.target) && !sceneNavigatorBtn.contains(e.target)) {
-                 sceneNavigatorPanel.classList.add('translate-x-full');
-            }
-        });
-
-        function populateSceneNavigator() {
-            sceneList.innerHTML = '';
-            const lines = fountainInput.value.split('\n');
-            let sceneIndex = 0;
-            lines.forEach((line) => {
-                const trimmedLine = line.trim().toUpperCase();
-                if (trimmedLine.startsWith('INT.') || trimmedLine.startsWith('EXT.')) {
-                    const li = document.createElement('li');
-                    li.textContent = line;
-                    li.className = 'p-2 text-gray-300 bg-gray-700 rounded-md mb-2 cursor-grab';
-                    li.draggable = true;
-                    li.dataset.sceneIndex = sceneIndex++;
-                    sceneList.appendChild(li);
-                }
-            });
-        }
-        
-        let draggedItem = null;
-
-        sceneList.addEventListener('dragstart', e => {
-            draggedItem = e.target;
-            setTimeout(() => e.target.classList.add('dragging'), 0);
-        });
-
-        sceneList.addEventListener('dragend', e => {
-            e.target.classList.remove('dragging');
-        });
-
-        sceneList.addEventListener('dragover', e => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(sceneList, e.clientY);
-            if (afterElement == null) {
-                sceneList.appendChild(draggedItem);
+                alert('Auto-save enabled (every 2 minutes)');
             } else {
-                sceneList.insertBefore(draggedItem, afterElement);
+                clearInterval(autoSaveInterval);
+                alert('Auto-save disabled');
             }
-        });
-
-        sceneList.addEventListener('drop', () => {
-            reorderScript();
-        });
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        function reorderScript() {
-            const fullText = fountainInput.value;
-            const lines = fullText.split('\n');
+        function showApiInstructions() {
+            alert('To get a Gemini API key:\n1. Visit https://aistudio.google.com/app/apikey\n2. Sign in with your Google account.\n3. Generate an API key.\n4. Copy and paste it using the "API Key" button in this app.');
+        }
 
-            const sceneBlocks = [];
-            let nonSceneHeader = [];
-            let currentSceneBlock = [];
-            let isFirstSceneFound = false;
-
-            lines.forEach(line => {
-                const isSceneHeading = line.trim().toUpperCase().startsWith('INT.') || line.trim().toUpperCase().startsWith('EXT.');
-                
-                if (isSceneHeading) {
-                    if (!isFirstSceneFound) {
-                        isFirstSceneFound = true;
-                    }
-                    if (currentSceneBlock.length > 0) {
-                        sceneBlocks.push(currentSceneBlock.join('\n'));
-                    }
-                    currentSceneBlock = [line];
-                } else {
-                    if (isFirstSceneFound) {
-                        currentSceneBlock.push(line);
-                    } else {
-                        nonSceneHeader.push(line);
-                    }
-                }
-            });
-            if (currentSceneBlock.length > 0) {
-                sceneBlocks.push(currentSceneBlock.join('\n'));
+        function setApiKey() {
+            const apiKey = prompt('Enter your Gemini API Key:');
+            if (apiKey) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                localStorage.setItem('useLocalAi', 'false'); // Set the flag to use Gemini API
+                alert('API Key saved! AI features will now use the Gemini API.');
             }
+        }
 
-            const newOrderIndices = [...sceneList.querySelectorAll('li')].map(li => parseInt(li.dataset.sceneIndex));
-            const reorderedSceneBlocks = newOrderIndices.map(index => sceneBlocks[index]);
-
-            const headerText = nonSceneHeader.join('\n');
-            const newScriptArray = [];
-
-            if (headerText.trim() !== '') {
-                newScriptArray.push(headerText);
+        function setLocalApiUrl() {
+            const apiUrl = prompt('Enter your Local AI Server Base URL (e.g., http://192.168.43.111:1234):');
+            if (apiUrl) {
+                localStorage.setItem('localApiUrl', apiUrl);
+                localStorage.setItem('useLocalAi', 'true'); // Set the flag to use local AI
+                alert('Local AI URL saved! AI features will now use the local server.');
             }
-            newScriptArray.push(...reorderedSceneBlocks);
-
-            fountainInput.value = newScriptArray.join('\n\n');
-            history.add(fountainInput.value);
-            renderPreview();
         }
         
-        if ('visualViewport' in window) {
-            const handleViewportChange = () => {
-                const keyboardHeight = window.innerHeight - window.visualViewport.height;
-                if (keyboardHeight > 100) {
-                    mobileToolbar.style.bottom = `${keyboardHeight}px`;
-                } else {
-                    mobileToolbar.style.bottom = '-100px';
+        async function callAiModel(promptText) {
+            const useLocal = localStorage.getItem('useLocalAi') === 'true';
+
+            if (useLocal) {
+                const baseUrl = localStorage.getItem('localApiUrl');
+                if (!baseUrl) {
+                    throw new Error('Please set your Local AI Server URL first using the "Local AI" button.');
                 }
-            };
+
+                const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "local-model",
+                        messages: [{ role: "user", content: promptText }],
+                        temperature: 0.7,
+                        stream: false
+                    })
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({}));
+                     const errorMsg = errorData.error?.message || response.statusText || 'Local API request failed';
+                     throw new Error(errorMsg);
+                }
+                const data = await response.json();
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Invalid response format from local AI server.');
+                }
+                return data.choices[0].message.content.trim();
+
+            } else {
+                const apiKey = localStorage.getItem('geminiApiKey');
+                if (!apiKey) {
+                    throw new Error('Please set your Gemini API Key first.');
+                }
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({}));
+                     const errorMsg = errorData.error?.message || 'Gemini API request failed';
+                     throw new Error(errorMsg);
+                }
+                const data = await response.json();
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                     throw new Error('Invalid response format from Gemini API.');
+                }
+                return data.candidates[0].content.parts[0].text.trim();
+            }
+        }
+
+        async function getAiSuggestion() {
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Generating suggestion...';
+            openSidebar();
+
+            const context = getContextText();
+
+            if (!context) {
+                alert('Please select some text or write something in the editor.');
+                closeSidebar();
+                return;
+            }
+
+            try {
+                const promptText = `Suggest 5 diverse and creative options for the next sentence or to continue the following text. Format your response as a simple numbered list. Do not add any extra commentary before or after the list.\n\nText: "${context}"`;
+                const fullSuggestion = await callAiModel(promptText);
+
+                const suggestions = fullSuggestion.split('\n')
+                    .map(line => line.replace(/^(\d+\.|-|\*)\s*/, '').trim())
+                    .filter(line => line.length > 0);
+
+                if (suggestions.length === 0) {
+                    throw new Error("Could not parse AI response or the response was empty.");
+                }
+
+                let html = '<strong>AI Suggestions:</strong><br>';
+                suggestions.forEach((suggestionText, index) => {
+                    const escapedText = suggestionText.replace(/'/g, "\\'");
+                    html += `<div class="option">
+                                <strong>Option ${index + 1}:</strong> ${suggestionText}<br>
+                                <button onclick="insertSuggestion('${escapedText}')">Insert</button>
+                             </div>`;
+                });
+                html += '<button onclick="closeSidebar()">Close</button>';
+                suggestionDiv.innerHTML = html;
+            } catch (error) {
+                suggestionDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function getAiProofread() {
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Proofreading...';
+            openSidebar();
+
+            const textToProofread = getContextText();
+
+            if (!textToProofread) {
+                alert('Please select text or write something in the editor to proofread.');
+                closeSidebar();
+                return;
+            }
+
+            try {
+                const promptText = `Proofread and correct grammar, spelling, and punctuation in this text. Return only the corrected version: "${textToProofread}"`;
+                const correctedText = await callAiModel(promptText);
+
+                suggestionDiv.innerHTML = `<strong>Proofread Version:</strong><br><div style="white-space: pre-wrap; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">${correctedText}</div><br><button onclick="insertProofread('${correctedText.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">Replace Original</button> <button onclick="closeSidebar()">Close</button>`;
+            } catch (error) {
+                suggestionDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        var customAiVariations = [];
+        function handleCustomInsert(index) {
+            if (customAiVariations[index]) {
+                insertSuggestion(customAiVariations[index]);
+            }
+        }
+
+        // REPLACE your old insertSuggestion function with this one
+function insertSuggestion(suggestion) {
+    const editor = document.getElementById('editor');
+    editor.focus(); // Crucial step: Make sure the editor is active
+
+    // This command intelligently replaces the current selection,
+    // or inserts text at the cursor if nothing is selected.
+    document.execCommand('insertText', false, suggestion);
+    
+    saveToHistory();
+    updateStats();
+}
+
+        // REPLACE your old insertProofread function with this one
+function insertProofread(correctedText) {
+    const editor = document.getElementById('editor');
+    editor.focus(); // Crucial step: Make sure the editor is active
+
+    // This command intelligently replaces the current selection,
+    // which is the correct behavior for proofreading.
+    document.execCommand('insertText', false, correctedText);
+
+    saveToHistory();
+    updateStats();
+}
+        
+        async function getAiCustom() {
+            customAiVariations = [];
+            const suggestionDiv = document.getElementById('suggestion');
+            suggestionDiv.innerHTML = 'Generating custom response...';
+            openSidebar();
             
-            fountainInput.addEventListener('focus', () => {
-                setTimeout(() => window.visualViewport.addEventListener('resize', handleViewportChange), 100);
-            });
+            const customInstruction = prompt("Enter your custom instruction (e.g., 'rewrite this as a screenplay scene', 'make this more professional', 'explain this to a 5-year-old'):");
+            if (!customInstruction) {
+                closeSidebar();
+                return;
+            }
+
+            const context = getContextText();
+
+            if (!context) {
+                alert('Please select text or write something in the editor to use this feature.');
+                closeSidebar();
+                return;
+            }
             
-            fountainInput.addEventListener('blur', () => {
-                window.visualViewport.removeEventListener('resize', handleViewportChange);
-                mobileToolbar.style.bottom = '-100px';
+            const mobileMenu = document.getElementById('mobile-slider-menu');
+            if (mobileMenu && mobileMenu.classList.contains('show')) {
+                mobileMenu.classList.remove('show');
+            }
+
+            try {
+                const promptText = `Based on the user's instruction "${customInstruction}", provide 3 distinct and creative variations for the following text. IMPORTANT: Separate each complete variation with "---" on a new line by itself. Do not number the variations or add any other commentary.\n\nText: "${context}"`;
+                const fullResponse = await callAiModel(promptText);
+                const variations = fullResponse.split(/\n---\n/).filter(v => v.trim().length > 0);
+
+                if (variations.length === 0) {
+                     throw new Error("Could not parse AI response. The model may not have used the '---' separator. Retrying might help.");
+                }
+                customAiVariations = variations;
+
+                let html = `<strong>Custom Suggestions:</strong><br><small>Instruction: "${customInstruction}"</small>`;
+                variations.forEach((varText, index) => {
+                    const displayText = `<div style="white-space: pre-wrap; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 3px;">${varText}</div>`;
+                    html += `<div class="option">
+                                <strong>Option ${index + 1}:</strong>
+                                ${displayText}
+                                <br>
+                                <button onclick="handleCustomInsert(${index})">Insert</button>
+                             </div>`;
+                });
+                html += '<button onclick="closeSidebar()">Close</button>';
+                suggestionDiv.innerHTML = html;
+            } catch (error) {
+                console.error(error);
+                suggestionDiv.innerHTML = `Error: ${error.message}.`;
+            }
+        }
+
+       function formatText(type) {
+            let command = '';
+            let value = null;
+            switch (type) {
+                case 'bold': command = 'bold'; break;
+                case 'italic': command = 'italic'; break;
+                case 'heading1': command = 'formatBlock'; value = 'H1'; break;
+                case 'heading2': command = 'formatBlock'; value = 'H2'; break;
+                case 'numberedList': command = 'insertOrderedList'; break;
+                case 'quote': command = 'formatBlock'; value = 'BLOCKQUOTE'; break;
+                case 'table':
+                    const tableHTML = '<table border="1" width="100%"><tbody><tr><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><p><br></p>';
+                    document.execCommand('insertHTML', false, tableHTML);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'link':
+                    const url = prompt('Enter URL:') || 'https://example.com';
+                    if (url) document.execCommand('createLink', false, url);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'image':
+                    const imgUrl = prompt('Enter image URL:') || 'https://example.com/image.jpg';
+                    if (imgUrl) document.execCommand('insertImage', false, imgUrl);
+                    saveToHistory();
+                    updateStats();
+                    return;
+                case 'footnote':
+                    const note = prompt('Enter footnote text:') || 'note';
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const sup = document.createElement('sup');
+                        sup.textContent = `[${note}]`;
+                        range.insertNode(sup);
+                    }
+                    saveToHistory();
+                    updateStats();
+                    return;
+            }
+            if (command) document.execCommand(command, false, value);
+            saveToHistory();
+            updateStats();
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFullscreen = !!document.fullscreenElement;
+            document.body.classList.toggle('fullscreen', isFullscreen);
+            document.getElementById('fullscreen-footer-controls').style.display = isFullscreen ? 'flex' : 'none';
+        });
+
+        if (!isMobile()) {
+            const footer = document.getElementById('footer');
+            footer.classList.add('visible');
+            document.addEventListener('mousemove', (event) => {
+                clearTimeout(footerTimeout);
+                if (event.clientY > window.innerHeight - 100) {
+                    footer.classList.remove('hidden');
+                    footer.classList.add('visible');
+                } else {
+                    footerTimeout = setTimeout(() => {
+                        footer.classList.remove('visible');
+                        footer.classList.add('hidden');
+                    }, 2000);
+                }
             });
         }
 
-        // --- Initialization ---
-        setPlaceholder();
-        history.stack = [''];
-        history.currentIndex = 0;
-        history.updateButtons();
-        updateFontSize();
+        document.getElementById('editor').addEventListener('input', () => {
+            saveToHistory();
+            updateStats();
+        });
+
+        saveToHistory();
+        updateStats();
+
     </script>
 </body>
 </html>
